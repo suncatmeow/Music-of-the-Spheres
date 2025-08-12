@@ -1,0 +1,3051 @@
+<!DOCTYPE html>
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, orientation=portrait">  
+    <title>Music of the Spheres - 10 Voice Pianist</title>  
+    <style>  
+        * {  
+            margin: 0;  
+            padding: 0;  
+            box-sizing: border-box;  
+        }  
+        body {  
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;  
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);  
+            color: #fff;  
+            overflow: auto;
+            touch-action: none;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100vw;
+            height: 100vh;
+        }  
+        
+        .game-container {
+            position: relative;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+            border: 2px solid #00ff88;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.2s ease, height 0.2s ease;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+        }
+      
+        .header {  
+            position: relative;
+            z-index: 10;
+            padding: 4px 6px;  
+            background: rgba(0,0,0,0.85);  
+            backdrop-filter: blur(15px);
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            flex-shrink: 0;
+            display: grid;
+            grid-template-columns: 1.2fr auto 1fr;
+            align-items: center;
+            gap: 4px;
+            font-size: 8px;
+            overflow: hidden;
+        }  
+      
+        .header-left, .header-center, .header-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        
+        .header-left { align-items: flex-start; }
+        .header-center { align-items: center; gap: 2px; }
+        .header-right { align-items: flex-end; }
+      
+        .title {  
+            font-size: 11px;  
+            font-weight: 600;  
+            background: linear-gradient(45deg, #00ff88, #ffaa00, #9932CC, #FFD700, #FF6B6B);  
+            -webkit-background-clip: text;  
+            -webkit-text-fill-color: transparent;  
+            background-clip: text;  
+            letter-spacing: 0.5px;
+            line-height: 1;
+        }  
+        
+        .status-line {
+            font-size: 6px;
+            color: #aaa;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        
+        .status-value-inline {
+            color: #00ff88;
+            font-weight: 600;
+        }
+        
+        .classical-active-inline {
+            color: #FFD700 !important;
+            text-shadow: 0 0 4px #FFD700;
+        }
+
+        .emotional-active-inline {
+            color: #FF69B4 !important;
+            text-shadow: 0 0 4px #FF69B4;
+        }
+
+        .voice-active-inline {
+            color: #00CED1 !important;
+            text-shadow: 0 0 4px #00CED1;
+        }
+      
+        .controls {  
+            display: flex;  
+            gap: 3px;  
+            justify-content: center;  
+            margin-top: 2px;
+        }  
+      
+        button {  
+            padding: 3px 6px;  
+            font-size: 9px;  
+            font-weight: 500;  
+            border: none;  
+            border-radius: 10px;  
+            background: rgba(255,255,255,0.15);  
+            color: #fff;  
+            cursor: pointer;  
+            transition: all 0.2s ease;  
+            backdrop-filter: blur(5px);
+            min-width: 24px;
+            line-height: 1;
+        }  
+      
+        button:hover, button:active {  
+            background: rgba(255,255,255,0.2);  
+            transform: scale(0.98);  
+        }  
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .spheres-synthesis {
+            background: linear-gradient(45deg, #FFD700, #FF1493, #00ff88, #9370DB) !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            animation: emotionalPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes emotionalPulse {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 105, 180, 0.7); }
+            50% { transform: scale(1.02); box-shadow: 0 0 18px rgba(220, 20, 60, 0.6); }
+            75% { transform: scale(1.03); box-shadow: 0 0 22px rgba(147, 112, 219, 0.8); }
+        }
+      
+        .main-content {  
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 8px;
+            display: flex;  
+            flex-direction: column;  
+            gap: 6px;
+            overflow: hidden;
+            z-index: 1;
+            padding-top: 50px;
+        }  
+      
+        .visualizer {  
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.3);  
+            border-radius: 50%;  
+            overflow: hidden;  
+            border: 1px solid rgba(255,255,255,0.1);  
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            width: 60%;
+            height: 45%;
+        }  
+      
+        .oscilloscope {  
+            display: block;
+            image-rendering: pixelated;
+            touch-action: none;
+            transition: width 0.2s ease, height 0.2s ease;
+            border-radius: 50%;
+        }  
+      
+        .staff {  
+            position: absolute;
+            bottom: 20%;
+            left: 8px;
+            right: 8px;
+            height: 22%;
+            background: rgba(0,0,0,0.6);  
+            border-radius: 8px;  
+            overflow: hidden;  
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: height 0.2s ease;
+            z-index: 3;
+        }  
+      
+        .treble-staff, .bass-staff {  
+            position: absolute;  
+            left: 0;  
+            right: 0;  
+            height: 45%;  
+        }  
+        
+        .treble-staff {
+            top: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .bass-staff {
+            bottom: 2px;
+        }
+      
+        .staff-lines {  
+            position: absolute;  
+            width: 100%;  
+            height: 100%;  
+            opacity: 0.3;  
+        }  
+      
+        .staff-line {  
+            position: absolute;  
+            width: 100%;  
+            height: 1px;  
+            background: #666;  
+        }  
+      
+        .clef-symbol {  
+            position: absolute;  
+            left: 4px;  
+            font-size: 10px;  
+            color: #aaa;  
+            z-index: 5;  
+            font-weight: bold;
+            transition: font-size 0.2s ease;
+        }  
+      
+        .treble-clef { top: 6px; }  
+        .bass-clef { top: 6px; }  
+      
+        .staff-divider {  
+            position: absolute;  
+            left: 0;  
+            right: 0;  
+            top: 50%;  
+            height: 1px;  
+            background: rgba(255,255,255,0.3);  
+            z-index: 3;  
+        }  
+      
+        .playhead {  
+            position: absolute;  
+            left: 50%;  
+            top: 0;  
+            width: 2px;  
+            height: 100%;  
+            background: #00ff88;  
+            z-index: 10;  
+            box-shadow: 0 0 8px #00ff88;  
+            opacity: 0.8;  
+        }  
+      
+        .note {  
+            position: absolute;  
+            height: 3px;  
+            border-radius: 2px;  
+            animation: slideLeft linear;  
+            z-index: 1;  
+        }  
+      
+        .metronome-note {  
+            background: #ffaa00;  
+            box-shadow: 0 0 4px #ffaa00;  
+        }  
+      
+        .melody-note {  
+            background: #ff4444;  
+            box-shadow: 0 0 4px #ff4444;  
+        }  
+      
+        .harmony-note {  
+            background: #ffffff;  
+            box-shadow: 0 0 4px #ffffff;  
+        }  
+      
+        .bass-note {  
+            background: #4488ff;  
+            box-shadow: 0 0 4px #4488ff;  
+            height: 4px;
+        }
+
+        .countermelody-note {
+            background: #ff8866;
+            box-shadow: 0 0 4px #ff8866;
+        }
+
+        .inner-harmony-note {
+            background: #cccccc;
+            box-shadow: 0 0 4px #cccccc;
+        }
+
+        .tenor-note {
+            background: #88ff88;
+            box-shadow: 0 0 4px #88ff88;
+        }
+
+        .alto-note {
+            background: #ff88ff;
+            box-shadow: 0 0 4px #ff88ff;
+        }
+
+        .soprano-note {
+            background: #88ffff;
+            box-shadow: 0 0 4px #88ffff;
+        }
+
+        .pedal-note {
+            background: #666688;
+            box-shadow: 0 0 4px #666688;
+            height: 5px;
+        }
+
+        .emotional-longing {
+            background: linear-gradient(45deg, #DC143C, #FF1493);
+            box-shadow: 0 0 12px rgba(220, 20, 60, 0.9);
+            height: 4px;
+            animation: longingPulse 1.2s infinite ease-in-out;
+        }
+
+        .emotional-ecstasy {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 1.0);
+            height: 5px;
+            animation: ecstasyBurst 0.8s infinite ease-in-out;
+        }
+
+        .emotional-melancholy {
+            background: linear-gradient(45deg, #4169E1, #6495ED);
+            box-shadow: 0 0 10px rgba(65, 105, 225, 0.8);
+            height: 3px;
+            animation: melancholyFlow 2.0s infinite ease-in-out;
+        }
+
+        .emotional-transcendence {
+            background: linear-gradient(45deg, #9370DB, #DDA0DD, #E6E6FA);
+            box-shadow: 0 0 20px rgba(147, 112, 219, 1.0);
+            height: 6px;
+            animation: transcendenceGlow 1.5s infinite ease-in-out;
+        }
+
+        @keyframes longingPulse {
+            0%, 100% { opacity: 0.8; transform: scaleY(1); }
+            50% { opacity: 1.2; transform: scaleY(1.3); }
+        }
+
+        @keyframes ecstasyBurst {
+            0%, 100% { transform: scale(1); opacity: 1.0; }
+            50% { transform: scale(1.4); opacity: 1.3; }
+        }
+
+        @keyframes melancholyFlow {
+            0%, 100% { opacity: 0.7; transform: scaleX(1); }
+            33% { opacity: 0.9; transform: scaleX(0.8); }
+            66% { opacity: 1.1; transform: scaleX(1.2); }
+        }
+
+        @keyframes transcendenceGlow {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            25% { transform: scale(1.1); opacity: 1.2; }
+            50% { transform: scale(1.2); opacity: 1.4; }
+            75% { transform: scale(1.05); opacity: 1.1; }
+        }
+      
+        @keyframes slideLeft {  
+            0% { left: 100%; opacity: 1; }  
+            100% { left: -300px; opacity: 0; }  
+        }
+
+        .narrative-flow {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            height: 16%;
+            background: rgba(0,0,0,0.85);
+            border-radius: 8px;
+            border: 1px solid rgba(153,50,204,0.4);
+            backdrop-filter: blur(15px);
+            overflow-y: auto;
+            padding: 8px 12px 4px 12px;
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #fff;
+            z-index: 4;
+            box-shadow: 0 0 20px rgba(153, 50, 204, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .narrative-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+            min-height: 100%;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .narrative-flow::-webkit-scrollbar { width: 4px; }
+        .narrative-flow::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
+        .narrative-flow::-webkit-scrollbar-thumb { background: rgba(153,50,204,0.4); border-radius: 2px; }
+
+        @media (max-width: 400px), (max-height: 400px) {
+            .title { font-size: 10px; }
+            button { padding: 3px 6px; font-size: 7px; min-width: 20px; }
+            .status-line { font-size: 5px; }
+            .clef-symbol { font-size: 8px; }
+            .narrative-flow { font-size: 12px; height: 18%; }
+            .staff { height: 24%; }
+        }
+    </style>
+</head>  
+<body>  
+    <div class="game-container" id="gameContainer">
+        <div class="header">
+            <div class="header-left">
+                <div class="status-line" id="timeDisplay">10-Voice Pianist Synthesis</div>
+                <div class="status-line">
+                    <span class="status-value-inline" id="planetaryKeyDisplay">Calculating</span>|<span class="status-value-inline" id="currentPlanetDisplay">Initializing</span>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="title">MUSIC OF THE SPHERES</div>
+                <div class="controls">  
+                    <button id="startBtn" onclick="startSpheresSynthesis()">▶</button>  
+                    <button id="stopBtn" onclick="stopSpheresSynthesis()" disabled>⏹</button>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="status-line">
+                    <span class="status-value-inline" id="barDisplay">Ready</span>|<span class="status-value-inline" id="metronomeDisplay">Standby</span>
+                </div>
+                <div class="status-line">
+                    <span id="emotionalField" class="status-value-inline">Emo:Off</span>|<span id="voicesField" class="status-value-inline">V:0/10</span>
+                </div>
+                <div class="status-line">
+                    <span id="leftHandField" class="status-value-inline">L:Off</span>|<span id="rightHandField" class="status-value-inline">R:Off</span>|<span id="pedalField" class="status-value-inline">P:Off</span>
+                </div>
+            </div>
+        </div>  
+        
+        <div class="main-content">
+            <div class="visualizer">  
+                <canvas class="oscilloscope" id="oscilloscope"></canvas>  
+            </div>
+          
+            <div class="staff">  
+                <div class="treble-staff">  
+                    <div class="staff-lines">  
+                        <div class="staff-line" style="top: 0%;"></div>  
+                        <div class="staff-line" style="top: 25%;"></div>  
+                        <div class="staff-line" style="top: 50%;"></div>  
+                        <div class="staff-line" style="top: 75%;"></div>  
+                        <div class="staff-line" style="top: 100%;"></div>  
+                    </div>  
+                    <div class="clef-symbol treble-clef">𝄞</div>  
+                </div>  
+              
+                <div class="staff-divider"></div>  
+              
+                <div class="bass-staff">  
+                    <div class="staff-lines">  
+                        <div class="staff-line" style="top: 0%;"></div>  
+                        <div class="staff-line" style="top: 25%;"></div>  
+                        <div class="staff-line" style="top: 50%;"></div>  
+                        <div class="staff-line" style="top: 75%;"></div>  
+                        <div class="staff-line" style="top: 100%;"></div>  
+                    </div>  
+                    <div class="clef-symbol bass-clef">𝄢</div>  
+                </div>  
+              
+                <div class="playhead"></div>  
+            </div>
+
+            <div class="narrative-flow" id="narrativeFlow">
+                <div class="narrative-content" id="narrativeContent">The Good awakens Justice radiates Beauty rises</div>
+            </div>
+        </div>  
+    </div>
+
+<script>
+// ========================================================================================
+// MUSIC OF THE SPHERES - 10 VOICE PIANIST SYSTEM
+// Enhanced with Expanded Harmonic Verb System
+// ========================================================================================
+
+// ========================================================================================
+// EXPANDED HARMONIC VERB SYSTEM 
+// ========================================================================================
+
+const HARMONIC_VERB_SYSTEM = {
+    // Tension/Dissonance verbs (high tension situations)
+    tension: ['strikes', 'clashes', 'disrupts', 'challenges', 'conflicts', 'struggles', 'resists', 'opposes', 'fights', 'pierces'],
+    
+    // Resolution verbs (tension resolving)
+    resolution: ['resolves', 'settles', 'rests', 'completes', 'fulfills', 'concludes', 'arrives', 'lands', 'finds', 'achieves'],
+    
+    // Voice entry verbs (new voice appearing)
+    voiceEntry: ['enters', 'appears', 'emerges', 'awakens', 'begins', 'starts', 'opens', 'initiates', 'commences', 'launches'],
+    
+    // Voice exit verbs (voice stopping/fading)
+    voiceExit: ['departs', 'fades', 'dissolves', 'vanishes', 'ends', 'concludes', 'retreats', 'withdraws', 'disappears', 'closes'],
+    
+    // Consonance/Harmony verbs (harmonious intervals)
+    consonance: ['harmonizes', 'blesses', 'embraces', 'supports', 'unites', 'joins', 'merges', 'flows', 'aligns', 'resonates'],
+    
+    // Climax verbs (phrase climax moments)
+    climax: ['culminates', 'blazes', 'crowns', 'peaks', 'triumphs', 'dominates', 'commands', 'rules', 'reigns', 'shines'],
+    
+    // Bass foundation verbs (bass movement)
+    bassFoundation: ['anchors', 'grounds', 'supports', 'stabilizes', 'foundations', 'bases', 'roots', 'establishes', 'secures', 'upholds'],
+    
+    // High register verbs (soprano/alto activity)
+    highRegister: ['soars', 'sings', 'illuminates', 'brightens', 'lifts', 'elevates', 'ascends', 'rises', 'floats', 'glides'],
+    
+    // Sustained verbs (long duration notes)
+    sustained: ['sustains', 'holds', 'endures', 'maintains', 'continues', 'persists', 'lingers', 'remains', 'stays', 'lasts'],
+    
+    // Rhythmic pulse verbs (strong beats)
+    rhythmicPulse: ['pulses', 'drives', 'propels', 'pushes', 'beats', 'strikes', 'marks', 'counts', 'measures', 'times'],
+    
+    // Modal transformation verbs (scale changes)
+    modalChange: ['transforms', 'shifts', 'evolves', 'changes', 'alters', 'modifies', 'converts', 'adapts', 'adjusts', 'morphs'],
+    
+    // Emotional intensity verbs (high emotional peaks)
+    emotionalPeak: ['intensifies', 'burns', 'radiates', 'glows', 'blazes', 'ignites', 'kindles', 'fires', 'heats', 'warms'],
+    
+    // Voice doubling verbs (multiple voices same note)
+    voiceDoubling: ['doubles', 'reinforces', 'echoes', 'repeats', 'mirrors', 'reflects', 'duplicates', 'amplifies', 'strengthens', 'confirms'],
+    
+    // Counterpoint verbs (contrary motion between voices)
+    counterpoint: ['counters', 'opposes', 'balances', 'contrasts', 'responds', 'answers', 'debates', 'discusses', 'argues', 'dialogues'],
+    
+    // Pedal point verbs (sustained bass notes)
+    pedalPoint: ['anchors', 'grounds', 'stabilizes', 'holds', 'fixes', 'establishes', 'maintains', 'secures', 'locks', 'pins'],
+    
+    // Ascending motion verbs
+    ascending: ['rises', 'ascends', 'climbs', 'soars', 'lifts', 'elevates', 'mounts', 'scales', 'reaches', 'aspires'],
+    
+    // Descending motion verbs  
+    descending: ['falls', 'descends', 'drops', 'sinks', 'lowers', 'dives', 'plunges', 'tumbles', 'slides', 'cascades'],
+    
+    // Static/Repetitive verbs
+    static: ['holds', 'sustains', 'repeats', 'maintains', 'continues', 'persists', 'anchors', 'stays', 'remains', 'lingers'],
+    
+    // Large interval leap verbs
+    largeLeap: ['leaps', 'bounds', 'jumps', 'surges', 'vaults', 'springs', 'rockets', 'shoots', 'darts', 'hurls'],
+    
+    // Small step verbs
+    smallStep: ['steps', 'walks', 'moves', 'flows', 'glides', 'drifts', 'slides', 'creeps', 'crawls', 'nudges'],
+    
+    // Melodic ornament verbs
+    ornamentation: ['decorates', 'ornaments', 'embellishes', 'adorns', 'flourishes', 'graces', 'beautifies', 'enriches', 'colors', 'paints'],
+    
+    // Rhythmic syncopation verbs
+    syncopation: ['syncopates', 'displaces', 'shifts', 'offsets', 'delays', 'anticipates', 'disrupts', 'breaks', 'varies', 'accents'],
+    
+    // Voice leading verbs
+    voiceLeading: ['leads', 'guides', 'directs', 'conducts', 'steers', 'navigates', 'channels', 'flows', 'connects', 'links'],
+    
+    // Harmonic progression verbs
+    progression: ['progresses', 'advances', 'develops', 'unfolds', 'evolves', 'grows', 'expands', 'extends', 'continues', 'proceeds'],
+    
+    // Cadential verbs (approaching cadences)
+    cadential: ['approaches', 'nears', 'closes', 'prepares', 'sets', 'leads', 'heads', 'moves', 'tends', 'aims'],
+    
+    // Chromatic verbs (chromatic movement)
+    chromatic: ['chromaticizes', 'colors', 'inflects', 'bends', 'curves', 'winds', 'weaves', 'twists', 'turns', 'slides'],
+    
+    // Dynamic verbs (volume changes)
+    dynamics: ['swells', 'grows', 'increases', 'diminishes', 'fades', 'softens', 'whispers', 'shouts', 'calls', 'proclaims'],
+    
+    // Articulation verbs
+    articulation: ['attacks', 'strikes', 'plucks', 'bows', 'breathes', 'tongues', 'touches', 'caresses', 'hammers', 'taps'],
+    
+    // Textural verbs (texture changes)
+    texture: ['thickens', 'thins', 'layers', 'weaves', 'intertwines', 'separates', 'combines', 'blends', 'contrasts', 'juxtaposes']
+};
+
+// ========================================================================================
+// EMOTIONAL FLOW SYSTEM 
+// ========================================================================================
+
+const EMOTIONAL_SYSTEM = {
+    celestialEmotions: {
+        // Stars
+        Sol: { primaryEmotion: 'ecstasy', secondaryEmotion: 'transcendence', intensity: 0.9 },
+        Sirius: { primaryEmotion: 'ecstasy', secondaryEmotion: 'longing', intensity: 0.8 },
+        Betelgeuse: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.7 },
+        Vega: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.8 },
+        Rigel: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.9 },
+        Aldebaran: { primaryEmotion: 'longing', secondaryEmotion: 'melancholy', intensity: 0.7 },
+        Antares: { primaryEmotion: 'longing', secondaryEmotion: 'melancholy', intensity: 0.8 },
+        Polaris: { primaryEmotion: 'transcendence', secondaryEmotion: 'longing', intensity: 0.6 },
+        Proxima_Centauri: { primaryEmotion: 'longing', secondaryEmotion: 'transcendence', intensity: 0.5 },
+        Canopus: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.7 },
+        Arcturus: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.6 },
+        Capella: { primaryEmotion: 'ecstasy', secondaryEmotion: 'transcendence', intensity: 0.7 },
+        Spica: { primaryEmotion: 'ecstasy', secondaryEmotion: 'longing', intensity: 0.8 },
+        
+        // Planets
+        Mercury: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.6 },
+        Venus: { primaryEmotion: 'ecstasy', secondaryEmotion: 'longing', intensity: 0.8 },
+        Earth: { primaryEmotion: 'melancholy', secondaryEmotion: 'longing', intensity: 0.7 },
+        Mars: { primaryEmotion: 'longing', secondaryEmotion: 'melancholy', intensity: 0.8 },
+        Jupiter: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.9 },
+        Saturn: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.7 },
+        Uranus: { primaryEmotion: 'longing', secondaryEmotion: 'transcendence', intensity: 0.6 },
+        Neptune: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.8 },
+        Pluto: { primaryEmotion: 'transcendence', secondaryEmotion: 'longing', intensity: 0.5 },
+        
+        // Moons
+        Luna: { primaryEmotion: 'melancholy', secondaryEmotion: 'longing', intensity: 0.6 },
+        Io: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.7 },
+        Europa: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.6 },
+        Ganymede: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.5 },
+        Titan: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.7 },
+        Enceladus: { primaryEmotion: 'ecstasy', secondaryEmotion: 'transcendence', intensity: 0.8 },
+        Triton: { primaryEmotion: 'longing', secondaryEmotion: 'melancholy', intensity: 0.6 },
+        Phobos: { primaryEmotion: 'longing', secondaryEmotion: 'melancholy', intensity: 0.9 },
+        Deimos: { primaryEmotion: 'melancholy', secondaryEmotion: 'longing', intensity: 0.8 },
+        Callisto: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.5 },
+        
+        // Black Holes and Exotic Objects
+        Sagittarius_A_Star: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 1.0 },
+        M87_Black_Hole: { primaryEmotion: 'transcendence', secondaryEmotion: 'longing', intensity: 0.9 },
+        Cygnus_X1: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.8 },
+        TON_618: { primaryEmotion: 'transcendence', secondaryEmotion: 'transcendence', intensity: 1.0 },
+        
+        // Galaxy Centers and Cosmic Structures
+        Milky_Way_Center: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.9 },
+        Andromeda_Core: { primaryEmotion: 'longing', secondaryEmotion: 'transcendence', intensity: 0.8 },
+        CMB_Peak: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 1.0 },
+        Great_Attractor: { primaryEmotion: 'longing', secondaryEmotion: 'transcendence', intensity: 0.9 },
+        
+        // Major Asteroids
+        Ceres: { primaryEmotion: 'ecstasy', secondaryEmotion: 'transcendence', intensity: 0.6 },
+        Vesta: { primaryEmotion: 'ecstasy', secondaryEmotion: 'longing', intensity: 0.7 },
+        Pallas: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.8 },
+        Juno: { primaryEmotion: 'ecstasy', secondaryEmotion: 'longing', intensity: 0.7 },
+        Eros: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.9 },
+        Apophis: { primaryEmotion: 'longing', secondaryEmotion: 'melancholy', intensity: 0.8 },
+        Bennu: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.6 },
+        
+        // Zodiacal Constellations
+        Aries: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.8 },
+        Taurus: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.6 },
+        Gemini: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.7 },
+        Cancer: { primaryEmotion: 'melancholy', secondaryEmotion: 'longing', intensity: 0.7 },
+        Leo: { primaryEmotion: 'ecstasy', secondaryEmotion: 'longing', intensity: 0.9 },
+        Virgo: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.6 },
+        Libra: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.7 },
+        Scorpius: { primaryEmotion: 'longing', secondaryEmotion: 'melancholy', intensity: 0.9 },
+        Sagittarius: { primaryEmotion: 'longing', secondaryEmotion: 'transcendence', intensity: 0.8 },
+        Capricornus: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.7 },
+        Aquarius: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.8 },
+        Pisces: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.8 },
+        
+        // Major Constellations
+        Orion: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.9 },
+        Ursa_Major: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.7 },
+        Ursa_Minor: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.6 },
+        Cassiopeia: { primaryEmotion: 'ecstasy', secondaryEmotion: 'longing', intensity: 0.7 },
+        Perseus: { primaryEmotion: 'longing', secondaryEmotion: 'ecstasy', intensity: 0.8 },
+        Andromeda: { primaryEmotion: 'melancholy', secondaryEmotion: 'longing', intensity: 0.7 },
+        Draco: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.8 },
+        Cygnus: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.8 },
+        Aquila: { primaryEmotion: 'ecstasy', secondaryEmotion: 'transcendence', intensity: 0.8 },
+        Lyra: { primaryEmotion: 'ecstasy', secondaryEmotion: 'transcendence', intensity: 0.9 },
+        
+        // Nebulae and Deep Sky Objects
+        Orion_Nebula: { primaryEmotion: 'ecstasy', secondaryEmotion: 'transcendence', intensity: 0.8 },
+        Eagle_Nebula: { primaryEmotion: 'transcendence', secondaryEmotion: 'ecstasy', intensity: 0.9 },
+        Crab_Nebula: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.7 },
+        Ring_Nebula: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.6 },
+        Horsehead_Nebula: { primaryEmotion: 'melancholy', secondaryEmotion: 'transcendence', intensity: 0.8 },
+        
+        // Pulsars and Exotic Objects
+        PSR_B1919: { primaryEmotion: 'transcendence', secondaryEmotion: 'longing', intensity: 0.8 },
+        Vela_Pulsar: { primaryEmotion: 'transcendence', secondaryEmotion: 'melancholy', intensity: 0.7 },
+        Magnetar_SGR: { primaryEmotion: 'longing', secondaryEmotion: 'transcendence', intensity: 0.9 }
+    },
+    
+    emotionalHarmonics: {
+        longing: {
+            tensionMultiplier: 1.4,      
+            resolutionDesire: 0.8,       
+            intervalPreferences: [4, 6, 7], 
+            modalBias: 'minor'           
+        },
+        ecstasy: {
+            tensionMultiplier: 0.3,      
+            resolutionDesire: 0.2,       
+            intervalPreferences: [0, 2, 4, 7], 
+            modalBias: 'major'           
+        },
+        melancholy: {
+            tensionMultiplier: 0.8,      
+            resolutionDesire: 0.6,       
+            intervalPreferences: [1, 3, 5, 6], 
+            modalBias: 'dorian'          
+        },
+        transcendence: {
+            tensionMultiplier: 0.1,      
+            resolutionDesire: 0.1,       
+            intervalPreferences: [0, 4, 7, 11], 
+            modalBias: 'lydian'          
+        }
+    }
+};
+
+// Global emotional state tracking
+const emotionalTides = {
+    longing: 0.0,
+    ecstasy: 0.0,
+    melancholy: 0.0,
+    transcendence: 0.0,
+    
+    momentum: {
+        longing: 0.0,
+        ecstasy: 0.0,
+        melancholy: 0.0,
+        transcendence: 0.0
+    },
+    
+    dominantEmotion: 'transcendence',
+    emotionalIntensity: 0.5,
+    lastEmotionalShift: 0
+};
+
+// ========================================================================================
+// CELESTIAL DATABASE
+// ========================================================================================
+
+const CELESTIAL_DATABASE = {
+    // Stars
+    Sol: { freq: 126.22, form: "The_Good", mass: 1.989e30, distance: 0 },
+    Sirius: { freq: 142.13, form: "Brilliance", mass: 4.02e30, distance: 8.6 },
+    Betelgeuse: { freq: 174.61, form: "Mutability", mass: 2.188e31, distance: 700 },
+    Vega: { freq: 233.08, form: "Constancy", mass: 4.25e30, distance: 25 },
+    Rigel: { freq: 194.23, form: "Power", mass: 4.28e31, distance: 860 },
+    Aldebaran: { freq: 202.56, form: "Leadership", mass: 1.16e31, distance: 65 },
+    Antares: { freq: 156.89, form: "Competition", mass: 2.4e31, distance: 550 },
+    Polaris: { freq: 188.44, form: "Direction", mass: 1.26e31, distance: 433 },
+    Proxima_Centauri: { freq: 189.76, form: "Proximity", mass: 2.446e29, distance: 4.24 },
+    Canopus: { freq: 178.32, form: "Navigation", mass: 1.71e31, distance: 310 },
+    Arcturus: { freq: 165.71, form: "Guardian", mass: 2.04e30, distance: 37 },
+    Capella: { freq: 201.88, form: "Nurturing", mass: 4.85e30, distance: 43 },
+    Spica: { freq: 218.94, form: "Harvest", mass: 2.25e31, distance: 250 },
+    
+    // Planets
+    Mercury: { freq: 141.27, form: "Communication", mass: 3.301e23, distance: 0.39 },
+    Venus: { freq: 221.23, form: "Beauty", mass: 4.867e24, distance: 0.72 },
+    Earth: { freq: 194.18, form: "Life", mass: 5.972e24, distance: 1.0 },
+    Mars: { freq: 144.72, form: "Courage", mass: 6.39e23, distance: 1.52 },
+    Jupiter: { freq: 183.58, form: "Justice", mass: 1.898e27, distance: 5.2 },
+    Saturn: { freq: 147.85, form: "Time", mass: 5.683e26, distance: 9.5 },
+    Uranus: { freq: 207.36, form: "Revolution", mass: 8.681e25, distance: 19.2 },
+    Neptune: { freq: 211.44, form: "Mystery", mass: 1.024e26, distance: 30.1 },
+    Pluto: { freq: 248.09, form: "Transformation", mass: 1.309e22, distance: 39.5 },
+    
+    // Moons
+    Luna: { freq: 210.42, form: "Reflection", mass: 7.342e22, distance: 1.0026 },
+    Io: { freq: 196.34, form: "Passion", mass: 8.932e22, distance: 5.2011 },
+    Europa: { freq: 181.77, form: "Concealment", mass: 4.8e22, distance: 5.2044 },
+    Ganymede: { freq: 192.66, form: "Service", mass: 1.482e23, distance: 5.2070 },
+    Titan: { freq: 207.64, form: "Abundance", mass: 1.345e23, distance: 9.5127 },
+    Enceladus: { freq: 254.74, form: "Purity", mass: 1.08e20, distance: 9.5095 },
+    Triton: { freq: 177.34, form: "Rebellion", mass: 2.139e22, distance: 30.1027 },
+    Phobos: { freq: 355.73, form: "Fear", mass: 1.072e16, distance: 1.52 },
+    Deimos: { freq: 284.91, form: "Dread", mass: 1.48e15, distance: 1.52 },
+    Callisto: { freq: 172.06, form: "Memory", mass: 1.076e23, distance: 5.2078 },
+    
+    // Black Holes
+    Sagittarius_A_Star: { freq: 98.47, form: "The_Void", mass: 8.26e36, distance: 26000 },
+    M87_Black_Hole: { freq: 87.33, form: "Event_Horizon", mass: 1.3e40, distance: 53500000 },
+    Cygnus_X1: { freq: 112.58, form: "Singularity", mass: 4.3e31, distance: 6070 },
+    TON_618: { freq: 62.15, form: "Ultimate_Mass", mass: 1.32e41, distance: 10370000000 },
+    
+    // Galaxy Centers and Cosmic Structures
+    Milky_Way_Center: { freq: 95.12, form: "Galactic_Heart", mass: 8.26e36, distance: 26000 },
+    Andromeda_Core: { freq: 89.76, form: "Approaching_Destiny", mass: 2.3e38, distance: 2537000 },
+    CMB_Peak: { freq: 160000, form: "Primordial_Echo", mass: 0, distance: 13800000000 },
+    Great_Attractor: { freq: 73.41, form: "Cosmic_Pull", mass: 1e47, distance: 150000000 },
+    
+    // Major Asteroids
+    Ceres: { freq: 295.17, form: "Harvest_Goddess", mass: 9.1e20, distance: 2.77 },
+    Vesta: { freq: 318.83, form: "Sacred_Flame", mass: 2.59e20, distance: 2.36 },
+    Pallas: { freq: 274.45, form: "Wisdom_Warrior", mass: 2.11e20, distance: 2.77 },
+    Juno: { freq: 301.56, form: "Divine_Marriage", mass: 2.67e19, distance: 2.67 },
+    Eros: { freq: 389.22, form: "Divine_Love", mass: 6.69e15, distance: 1.46 },
+    Apophis: { freq: 427.83, form: "Chaos_Serpent", mass: 6.1e10, distance: 0.92 },
+    Bennu: { freq: 445.71, form: "Resurrection_Bird", mass: 7.8e10, distance: 1.13 },
+    
+    // Zodiacal Constellations
+    Aries: { freq: 168.91, form: "Initiative", mass: 3.4e30, distance: 66 },
+    Taurus: { freq: 202.56, form: "Steadfastness", mass: 1.16e31, distance: 65 },
+    Gemini: { freq: 234.42, form: "Duality", mass: 5.1e30, distance: 34 },
+    Cancer: { freq: 176.04, form: "Protection", mass: 1.2e30, distance: 174 },
+    Leo: { freq: 178.32, form: "Sovereignty", mass: 6.4e30, distance: 79 },
+    Virgo: { freq: 218.94, form: "Perfection", mass: 2.25e31, distance: 250 },
+    Libra: { freq: 185.47, form: "Balance", mass: 2.1e30, distance: 77 },
+    Scorpius: { freq: 156.89, form: "Intensity", mass: 2.4e31, distance: 550 },
+    Sagittarius: { freq: 164.81, form: "Quest", mass: 3.2e30, distance: 143 },
+    Capricornus: { freq: 192.43, form: "Ambition", mass: 2.6e30, distance: 49 },
+    Aquarius: { freq: 171.82, form: "Innovation", mass: 1.8e30, distance: 650 },
+    Pisces: { freq: 159.68, form: "Compassion", mass: 7.3e30, distance: 294 },
+    
+    // Major Constellations
+    Orion: { freq: 194.23, form: "The_Hunter", mass: 4.28e31, distance: 860 },
+    Ursa_Major: { freq: 167.74, form: "Great_Bear", mass: 4.1e30, distance: 124 },
+    Ursa_Minor: { freq: 188.44, form: "Lesser_Bear", mass: 1.26e31, distance: 433 },
+    Cassiopeia: { freq: 201.15, form: "Vanity", mass: 9.8e30, distance: 228 },
+    Perseus: { freq: 187.61, form: "Hero", mass: 1.5e31, distance: 592 },
+    Andromeda: { freq: 166.29, form: "Sacrifice", mass: 7.8e30, distance: 97 },
+    Draco: { freq: 173.22, form: "Dragon", mass: 4.2e30, distance: 148 },
+    Cygnus: { freq: 195.71, form: "Swan", mass: 2.2e31, distance: 2600 },
+    Aquila: { freq: 189.34, form: "Eagle", mass: 3.7e30, distance: 17 },
+    Lyra: { freq: 233.08, form: "Music", mass: 4.25e30, distance: 25 },
+    
+    // Nebulae and Deep Sky Objects
+    Orion_Nebula: { freq: 152.73, form: "Stellar_Birth", mass: 2e33, distance: 1344 },
+    Eagle_Nebula: { freq: 148.62, form: "Creation_Pillars", mass: 1.8e33, distance: 7000 },
+    Crab_Nebula: { freq: 203.91, form: "Stellar_Death", mass: 2.8e30, distance: 6500 },
+    Ring_Nebula: { freq: 224.33, form: "Eternal_Circle", mass: 1.2e30, distance: 2300 },
+    Horsehead_Nebula: { freq: 158.43, form: "Dark_Mystery", mass: 5e32, distance: 1500 },
+    
+    // Pulsars and Exotic Objects
+    PSR_B1919: { freq: 1337.0, form: "Cosmic_Lighthouse", mass: 2.8e30, distance: 2283 },
+    Vela_Pulsar: { freq: 892.47, form: "Time_Keeper", mass: 3.4e30, distance: 968 },
+    Magnetar_SGR: { freq: 567.31, form: "Magnetic_Titan", mass: 2.2e30, distance: 50000 }
+};
+
+const SCALE_PATTERNS = {
+    ionian: [0, 2, 4, 5, 7, 9, 11],
+    dorian: [0, 2, 3, 5, 7, 9, 10], 
+    phrygian: [0, 1, 3, 5, 7, 8, 10],
+    lydian: [0, 2, 4, 6, 7, 9, 11],
+    mixolydian: [0, 2, 4, 5, 7, 9, 10],
+    aeolian: [0, 2, 3, 5, 7, 8, 10],
+    locrian: [0, 1, 3, 5, 6, 8, 10],
+    major_pentatonic: [0, 2, 4, 7, 9],
+    minor_pentatonic: [0, 3, 5, 7, 10],
+    harmonic_minor: [0, 2, 3, 5, 7, 8, 11],
+    melodic_minor: [0, 2, 3, 5, 7, 9, 11]
+};
+
+// ========================================================================================
+// 10-VOICE PIANIST SYSTEM
+// ========================================================================================
+
+const VOICE_DEFINITIONS = [
+    { name: 'metronome', color: [255, 170, 0], radius: 0.15, baseWidth: 0.8, probability: 0.25, momentum: 0 },
+    { name: 'melody', color: [255, 68, 68], radius: 0.25, baseWidth: 1.2, probability: 0.6, momentum: 0 },
+    { name: 'countermelody', color: [255, 136, 102], radius: 0.35, baseWidth: 1.0, probability: 0.4, momentum: 0 },
+    { name: 'soprano', color: [136, 255, 255], radius: 0.45, baseWidth: 0.9, probability: 0.35, momentum: 0 },
+    { name: 'alto', color: [255, 136, 255], radius: 0.55, baseWidth: 0.9, probability: 0.35, momentum: 0 },
+    { name: 'tenor', color: [136, 255, 136], radius: 0.65, baseWidth: 1.0, probability: 0.3, momentum: 0 },
+    { name: 'harmony', color: [255, 255, 255], radius: 0.75, baseWidth: 0.9, probability: 0.4, momentum: 0 },
+    { name: 'inner-harmony', color: [204, 204, 204], radius: 0.85, baseWidth: 0.8, probability: 0.3, momentum: 0 },
+    { name: 'bass', color: [68, 136, 255], radius: 0.95, baseWidth: 1.4, probability: 0.4, momentum: 0 },
+    { name: 'pedal', color: [102, 102, 136], radius: 1.05, baseWidth: 1.6, probability: 0.2, momentum: 0 }
+];
+
+const VOICE_CHARACTERISTICS = {
+    metronome: { octave: 0, sustain: 0.8, attack: 0.01, release: 0.1, isBass: false },
+    melody: { octave: 1, sustain: 1.0, attack: 0.03, release: 0.08, isBass: false },
+    countermelody: { octave: 0, sustain: 0.9, attack: 0.025, release: 0.09, isBass: false },
+    soprano: { octave: 2, sustain: 0.85, attack: 0.04, release: 0.12, isBass: false },
+    alto: { octave: 1, sustain: 0.8, attack: 0.035, release: 0.1, isBass: false },
+    tenor: { octave: 0, sustain: 0.9, attack: 0.03, release: 0.08, isBass: false },
+    harmony: { octave: 0, sustain: 0.75, attack: 0.04, release: 0.1, isBass: false },
+    'inner-harmony': { octave: 0, sustain: 0.7, attack: 0.045, release: 0.11, isBass: false },
+    bass: { octave: -1, sustain: 1.2, attack: 0.02, release: 0.15, isBass: true },
+    pedal: { octave: -2, sustain: 1.5, attack: 0.01, release: 0.2, isBass: true }
+};
+
+// ========================================================================================
+// ENHANCED MUSICAL STATE WITH 10-VOICE SYSTEM
+// ========================================================================================
+
+const enhancedState = {
+    // Classical enhancements
+    classicalOrnamentsActive: false,
+    tempoRubatoActive: false,
+    advancedHarmonyActive: false,
+    motivicDevelopmentActive: false,
+    phraseStructureActive: false,
+    
+    // Musical flow 
+    currentPhrase: null,
+    activeMotifs: [],
+    pendingCadence: null,
+    expressiveIntensity: 0.5,
+    
+    // Existing state
+    harmony: 0.5,
+    tension: 0.0,
+    activeNotes: [],
+    lastNote: null,
+    cosmicAlignment: false,
+    narrativeActive: true,
+    lastNarrativeEvent: 0,
+    
+    // NEW: Emotional system state
+    emotionalSystemActive: false,
+    desireDrivenActive: false,
+    lastEmotionalUpdate: 0,
+    activeEmotionalIntensity: 0,
+    
+    // 10-Voice system momentum tracking
+    voiceMomentum: {},
+    activeVoices: new Set(),
+    lastVoiceActivity: {},
+    voiceInterplay: 0.5,
+    
+    // Harmonic analysis tracking
+    currentDissonanceLevel: 0.0,
+    voicesEntering: new Set(),
+    voicesExiting: new Set(),
+    currentVoiceDoubling: new Map(),
+    lastHarmonicContext: null
+};
+
+// Initialize voice momentum
+VOICE_DEFINITIONS.forEach(voice => {
+    enhancedState.voiceMomentum[voice.name] = 0;
+    enhancedState.lastVoiceActivity[voice.name] = 0;
+});
+
+// ========================================================================================
+// UTILITY FUNCTIONS
+// ========================================================================================
+
+function weightedChoice(choices, weights) {
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (let i = 0; i < choices.length; i++) {
+        random -= weights[i];
+        if (random <= 0) return choices[i];
+    }
+    
+    return choices[choices.length - 1];
+}
+
+function generateChromaticPool() {
+    const celestialNames = Object.keys(CELESTIAL_DATABASE);
+    const chromaticNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const selectedPool = [];
+    
+    const availableBodies = [...celestialNames];
+    
+    for (let i = 0; i < 12; i++) {
+        const randomIndex = Math.floor(Math.random() * availableBodies.length);
+        const selectedBody = availableBodies.splice(randomIndex, 1)[0];
+        const bodyData = CELESTIAL_DATABASE[selectedBody];
+        
+        selectedPool.push({
+            chromaticIndex: i,
+            note: chromaticNotes[i],
+            celestialBody: selectedBody,
+            baseFrequency: bodyData.freq,
+            platonicForm: bodyData.form,
+            mass: bodyData.mass,
+            distance: bodyData.distance
+        });
+    }
+    
+    return selectedPool;
+}
+
+function extractScaleFromPool(chromaticPool, scalePattern, rootIndex = 0) {
+    return scalePattern.map(degree => {
+        const poolIndex = (rootIndex + degree) % 12;
+        const poolEntry = chromaticPool[poolIndex];
+        
+        return {
+            scaleDegree: scalePattern.indexOf(degree) + 1,
+            chromaticDegree: degree,
+            celestialBody: poolEntry.celestialBody,
+            platonicForm: poolEntry.platonicForm,
+            frequency: poolEntry.baseFrequency,
+            originalFrequency: poolEntry.baseFrequency
+        };
+    });
+}
+
+// ========================================================================================
+// MUSICAL SYSTEM VARIABLES
+// ========================================================================================
+
+let currentChromaticPool = null;
+let currentScale = null;
+let currentScalePattern = 'ionian';
+let currentRootIndex = 0;
+let barsSinceScaleChange = 0;
+let barsSincePoolChange = 0;
+
+let audioContext = null;
+let isPlaying = false;
+let masterClock = null;
+let analyser = null;
+let dataArray = null;
+let animationId = null;
+let masterGain = null;
+let compressor = null;
+let mixerGain = null;
+let audioInitialized = false;
+let tickCount = 0;
+
+let keyFrequencies = {};
+let currentKey = 'C';
+let currentScaleNotes = [];
+let currentScaleIntervals = [];
+let currentTempo = 90;
+let currentTimeSignature = [4, 4];
+let currentBarCount = 1;
+let beatsInCurrentBar = 0;
+let currentMetronomeNote = 1;
+let currentPlanetaryKey = [];
+
+const notePool = [];
+function getNoteObject() { return notePool.pop() || { note: 0, endTime: 0 }; }
+function returnNoteObject(note) { notePool.push(note); }
+
+// ========================================================================================
+// ENHANCED MUSICAL SYSTEM WITH VARIABLE EMOTIONS
+// ========================================================================================
+
+let emotionalCycleCounter = 0;
+
+function updateVariableEmotions() {
+    try {
+        if (currentBarCount % 3 === 1) {
+            const emotionNames = ['longing', 'ecstasy', 'melancholy', 'transcendence'];
+            const rawValues = emotionNames.map(() => Math.random());
+            const sum = rawValues.reduce((a, b) => a + b, 0);
+            
+            emotionNames.forEach((emotion, index) => {
+                emotionalTides[emotion] = rawValues[index] / sum;
+            });
+            
+            let maxEmotion = 'transcendence';
+            let maxValue = 0;
+            emotionNames.forEach(emotion => {
+                if (emotionalTides[emotion] > maxValue) {
+                    maxValue = emotionalTides[emotion];
+                    maxEmotion = emotion;
+                }
+            });
+            
+            emotionalTides.dominantEmotion = maxEmotion;
+            emotionalTides.emotionalIntensity = maxValue;
+            emotionalTides.lastEmotionalShift = tickCount;
+            
+            emotionalCycleCounter++;
+        }
+    } catch (error) {
+        console.error('Error in updateVariableEmotions:', error);
+    }
+}
+
+function updateMusicalSystem() {
+    try {
+        barsSinceScaleChange++;
+        barsSincePoolChange++;
+        
+        // Update variable emotions every 3 bars
+        updateVariableEmotions();
+        
+        if (barsSinceScaleChange >= 4) {
+            const scaleNames = Object.keys(SCALE_PATTERNS);
+            const newScalePattern = scaleNames[Math.floor(Math.random() * scaleNames.length)];
+            const newRootIndex = Math.floor(Math.random() * 12);
+            
+            currentScalePattern = newScalePattern;
+            currentRootIndex = newRootIndex;
+            
+            if (currentChromaticPool && currentChromaticPool.length >= 12) {
+                currentScale = extractScaleFromPool(currentChromaticPool, SCALE_PATTERNS[newScalePattern], newRootIndex);
+            }
+            
+            barsSinceScaleChange = 0;
+            updatePlanetaryKeyForNarrative();
+        }
+        
+        // New chromatic pool every 12 bars
+        if (barsSincePoolChange >= 12) {
+            currentChromaticPool = generateChromaticPool();
+            currentScale = extractScaleFromPool(currentChromaticPool, SCALE_PATTERNS[currentScalePattern], currentRootIndex);
+            barsSincePoolChange = 0;
+            barsSinceScaleChange = 0;
+            updatePlanetaryKeyForNarrative();
+            
+            // Change BPM every 12 bars between 9-136
+            const newTempo = Math.floor(Math.random() * (136 - 9 + 1)) + 9;
+            currentTempo = newTempo;
+            
+            // Update master clock with new tempo
+            if (isPlaying && masterClock) {
+                clearInterval(masterClock);
+                const beatsPerSecond = currentTempo / 60;
+                const eighthNoteInterval = Math.max(100, (1 / beatsPerSecond) / 2 * 1000);
+                masterClock = setInterval(musicalMasterClockTick, eighthNoteInterval);
+            }
+        }
+        
+        if (currentBarCount % 8 === 1) {
+            enhancedState.currentPhrase = new MusicalPhrase(8);
+        }
+        
+    } catch (error) {
+        console.error('Error in updateMusicalSystem:', error);
+        initializeMusicalSystem();
+    }
+}
+
+function initializeMusicalSystem() {
+    try {
+        currentChromaticPool = generateChromaticPool();
+        currentScalePattern = 'ionian';
+        currentRootIndex = 0;
+        currentScale = extractScaleFromPool(currentChromaticPool, SCALE_PATTERNS.ionian, 0);
+        
+        // Initialize with random tempo between 9-136 BPM
+        currentTempo = Math.floor(Math.random() * (136 - 9 + 1)) + 9;
+        
+        updatePlanetaryKeyForNarrative();
+        
+        enhancedState.currentPhrase = new MusicalPhrase(8);
+        enhancedState.activeMotifs = [];
+        
+        return true;
+    } catch (error) {
+        console.error('Failed to initialize musical system:', error);
+        currentScaleIntervals = [0, 2, 4, 5, 7, 9, 11];
+        currentKey = 'C';
+        currentScaleNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        currentTempo = Math.floor(Math.random() * (136 - 9 + 1)) + 9;
+        currentPlanetaryKey = [
+            { name: 'Sol', form: 'The_Good', frequency: 220 },
+            { name: 'Mercury', form: 'Communication', frequency: 246 },
+            { name: 'Venus', form: 'Beauty', frequency: 277 },
+            { name: 'Earth', form: 'Life', frequency: 293 },
+            { name: 'Mars', form: 'Courage', frequency: 330 },
+            { name: 'Jupiter', form: 'Justice', frequency: 370 },
+            { name: 'Saturn', form: 'Time', frequency: 415 }
+        ];
+        keyFrequencies = {
+            'C': 220, 'C#': 233, 'D': 246, 'D#': 261, 'E': 277, 'F': 293,
+            'F#': 311, 'G': 330, 'G#': 349, 'A': 370, 'A#': 392, 'B': 415
+        };
+        return false;
+    }
+}
+
+function updatePlanetaryKeyForNarrative() {
+    if (currentScale && currentScale.length > 0) {
+        currentPlanetaryKey = currentScale.map(scaleEntry => ({
+            name: scaleEntry.celestialBody || 'Unknown',
+            form: scaleEntry.platonicForm || 'Mystery',
+            frequency: scaleEntry.frequency || 220
+        }));
+    } else {
+        currentPlanetaryKey = [
+            { name: 'Sol', form: 'The_Good', frequency: 220 },
+            { name: 'Mercury', form: 'Communication', frequency: 246 },
+            { name: 'Venus', form: 'Beauty', frequency: 277 },
+            { name: 'Earth', form: 'Life', frequency: 293 },
+            { name: 'Mars', form: 'Courage', frequency: 330 },
+            { name: 'Jupiter', form: 'Justice', frequency: 370 },
+            { name: 'Saturn', form: 'Time', frequency: 415 }
+        ];
+    }
+    
+    keyFrequencies = {};
+    if (currentChromaticPool && currentChromaticPool.length >= 12) {
+        currentChromaticPool.forEach(poolEntry => {
+            if (poolEntry && poolEntry.note && poolEntry.baseFrequency) {
+                keyFrequencies[poolEntry.note] = poolEntry.baseFrequency;
+            }
+        });
+    } else {
+        const chromaticNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        chromaticNotes.forEach((note, index) => {
+            keyFrequencies[note] = 220 * Math.pow(2, index / 12);
+        });
+    }
+    
+    if (currentChromaticPool && currentChromaticPool.length > currentRootIndex) {
+        currentKey = currentChromaticPool[currentRootIndex].note || 'C';
+    } else {
+        currentKey = 'C';
+    }
+    
+    if (currentScale && currentScale.length > 0 && currentChromaticPool && currentChromaticPool.length >= 12) {
+        currentScaleNotes = currentScale.map(entry => {
+            const poolEntry = currentChromaticPool[entry.chromaticDegree];
+            return poolEntry ? poolEntry.note : 'C';
+        });
+    } else {
+        currentScaleNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    }
+    
+    currentScaleIntervals = SCALE_PATTERNS[currentScalePattern] || [0, 2, 4, 5, 7, 9, 11];
+}
+
+// ========================================================================================
+// SIMPLE PHRASE CLASS FOR MUSICAL STRUCTURE
+// ========================================================================================
+
+class MusicalPhrase {
+    constructor(length = 8) {
+        this.length = length;
+        this.position = 0;
+        this.climax_point = Math.floor(length * 0.7);
+        this.current_intensity = 0.5;
+        this.phrase_direction = 'ascending';
+        this.cadence_type = null;
+    }
+    
+    getCurrentContext() {
+        const position_ratio = this.position / this.length;
+        
+        if (position_ratio < 0.25) return 'opening';
+        if (position_ratio < 0.5) return 'development';
+        if (position_ratio < 0.75) return 'climax_approach';
+        if (position_ratio < 0.9) return 'climax';
+        return 'resolution';
+    }
+    
+    getExpressiveIntensity() {
+        const position_ratio = this.position / this.length;
+        
+        if (this.phrase_direction === 'arch') {
+            return Math.sin(position_ratio * Math.PI) * 0.8 + 0.2;
+        }
+        
+        if (this.phrase_direction === 'ascending') {
+            return 0.3 + (position_ratio * 0.7);
+        }
+        
+        return 0.8 - (position_ratio * 0.5);
+    }
+    
+    advance() {
+        this.position = (this.position + 1) % this.length;
+        this.current_intensity = this.getExpressiveIntensity();
+        return this.getCurrentContext();
+    }
+}
+
+// ========================================================================================
+// AUDIO SYSTEM
+// ========================================================================================
+
+function initAudio() {
+    try {
+        if (audioInitialized) return true;
+
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        
+        mixerGain = audioContext.createGain();
+        mixerGain.gain.value = 0.15; // Reduced gain for 10 voices
+        
+        const harmonicEnhancer = audioContext.createWaveShaper();
+        const enhancerCurve = new Float32Array(65536);
+        for (let i = 0; i < 65536; i++) {
+            const x = (i - 32768) / 32768;
+            enhancerCurve[i] = Math.tanh(x * 0.7) * 0.8;
+        }
+        harmonicEnhancer.curve = enhancerCurve;
+        harmonicEnhancer.oversample = '4x';
+        
+        const lowEQ = audioContext.createBiquadFilter();
+        lowEQ.type = 'lowshelf';
+        lowEQ.frequency.value = 200;
+        lowEQ.gain.value = 2;
+        
+        const midEQ = audioContext.createBiquadFilter();
+        midEQ.type = 'peaking';
+        midEQ.frequency.value = 1000;
+        midEQ.Q.value = 0.7;
+        midEQ.gain.value = 1;
+        
+        const highEQ = audioContext.createBiquadFilter();
+        highEQ.type = 'highshelf';
+        highEQ.frequency.value = 8000;
+        highEQ.gain.value = 1.5;
+        
+        const reverb = audioContext.createConvolver();
+        const reverbGain = audioContext.createGain();
+        reverbGain.gain.value = 0.2;
+        
+        const reverbTime = 2.5;
+        const sampleRate = audioContext.sampleRate;
+        const length = sampleRate * reverbTime;
+        const impulse = audioContext.createBuffer(2, length, sampleRate);
+        
+        for (let channel = 0; channel < 2; channel++) {
+            const channelData = impulse.getChannelData(channel);
+            for (let i = 0; i < length; i++) {
+                const decay = Math.pow(1 - i / length, 1.2);
+                channelData[i] = (Math.random() * 2 - 1) * decay * 0.1;
+            }
+        }
+        reverb.buffer = impulse;
+        
+        compressor = audioContext.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-16, audioContext.currentTime);
+        compressor.knee.setValueAtTime(15, audioContext.currentTime);
+        compressor.ratio.setValueAtTime(3, audioContext.currentTime);
+        compressor.attack.setValueAtTime(0.005, audioContext.currentTime);
+        compressor.release.setValueAtTime(0.15, audioContext.currentTime);
+        
+        const limiter = audioContext.createDynamicsCompressor();
+        limiter.threshold.setValueAtTime(-1, audioContext.currentTime);
+        limiter.knee.setValueAtTime(0, audioContext.currentTime);
+        limiter.ratio.setValueAtTime(12, audioContext.currentTime);
+        limiter.attack.setValueAtTime(0.001, audioContext.currentTime);
+        limiter.release.setValueAtTime(0.01, audioContext.currentTime);
+        
+        masterGain = audioContext.createGain();
+        masterGain.gain.value = 3.0; // Adjusted for 10 voices
+        
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.85;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        mixerGain.connect(harmonicEnhancer);
+        harmonicEnhancer.connect(lowEQ);
+        lowEQ.connect(midEQ);
+        midEQ.connect(highEQ);
+        highEQ.connect(reverb);
+        highEQ.connect(reverbGain);
+        reverb.connect(reverbGain);
+        reverbGain.connect(compressor);
+        compressor.connect(limiter);
+        limiter.connect(masterGain);
+        masterGain.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+        audioInitialized = true;
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
+function getPlatonicTimbre(form) {
+    const formToWaveform = {
+        'The_Good': 'sine', 'Brilliance': 'sine', 'Constancy': 'sine', 'Direction': 'sine', 'Proximity': 'sine',
+        'Reflection': 'sine', 'Concealment': 'sine', 'Service': 'sine', 'Purity': 'sine',
+        'Justice': 'triangle', 'Beauty': 'triangle', 'Life': 'triangle', 'Courage': 'triangle',
+        'Abundance': 'triangle', 'Passion': 'triangle',
+        'Communication': 'sawtooth', 'Revolution': 'sawtooth', 'Mystery': 'sawtooth', 'Transformation': 'sawtooth',
+        'Mutability': 'sawtooth', 'Power': 'sawtooth', 'Leadership': 'sawtooth', 'Competition': 'sawtooth',
+        'Rebellion': 'sawtooth',
+        'Time': 'square'
+    };
+    
+    return formToWaveform[form] || 'triangle';
+}
+
+function createMusicalOscillator(frequency, voiceType, scaleDegree = 1, classicalStyle = null, ornamentType = null) {
+    try {
+        if (!audioContext || !audioInitialized) {
+            throw new Error('Audio context not initialized');
+        }
+
+        if (!frequency || !isFinite(frequency) || frequency <= 0) {
+            throw new Error('Invalid frequency');
+        }
+
+        let planet = null;
+        if (currentPlanetaryKey && currentPlanetaryKey.length > 0 && scaleDegree > 0) {
+            const planetIndex = Math.min(scaleDegree - 1, currentPlanetaryKey.length - 1);
+            planet = currentPlanetaryKey[planetIndex];
+        }
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        // Ornamentation setup
+        let vibratoLFO = null;
+        let vibratoGain = null;
+        let trillOscillator = null;
+        let trillGain = null;
+        
+        let waveform = planet ? getPlatonicTimbre(planet.form) : 'triangle';
+        
+        oscillator.type = waveform;
+        oscillator.frequency.value = Math.min(frequency, 20000);
+        
+        // Apply ornamentations
+        if (ornamentType === 'vibrato') {
+            // Create vibrato LFO
+            vibratoLFO = audioContext.createOscillator();
+            vibratoGain = audioContext.createGain();
+            
+            vibratoLFO.type = 'sine';
+            vibratoLFO.frequency.value = 4 + Math.random() * 3; // 4-7 Hz vibrato
+            vibratoGain.gain.value = frequency * 0.01; // 1% frequency modulation
+            
+            vibratoLFO.connect(vibratoGain);
+            vibratoGain.connect(oscillator.frequency);
+            
+        } else if (ornamentType === 'trill') {
+            // Create trill oscillator (upper neighbor)
+            trillOscillator = audioContext.createOscillator();
+            trillGain = audioContext.createGain();
+            
+            const trillInterval = frequency * Math.pow(2, 2/12); // Major second up
+            trillOscillator.type = waveform;
+            trillOscillator.frequency.value = Math.min(trillInterval, 20000);
+            
+            trillGain.gain.value = 0; // Start silent
+            
+            trillOscillator.connect(trillGain);
+            trillGain.connect(mixerGain);
+        }
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(mixerGain);
+        
+        return { 
+            oscillator, 
+            gainNode, 
+            planet, 
+            vibratoLFO, 
+            vibratoGain, 
+            trillOscillator, 
+            trillGain,
+            ornamentType
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+// ========================================================================================
+// 10-VOICE INTELLIGENT NOTE SELECTION
+// ========================================================================================
+
+function getEmotionallyIntelligentNote(voiceType, previousNote) {
+    if (!currentScaleIntervals || currentScaleIntervals.length === 0) {
+        currentScaleIntervals = [0, 2, 4, 5, 7, 9, 11];
+    }
+    
+    const maxScaleDegree = currentScaleIntervals.length;
+    let proposedNote = Math.floor(Math.random() * maxScaleDegree) + 1;
+    
+    // Get dominant emotion and its characteristics
+    const dominantEmotion = emotionalTides.dominantEmotion;
+    const emotionalIntensity = emotionalTides.emotionalIntensity;
+    const emotionalProfile = EMOTIONAL_SYSTEM.emotionalHarmonics[dominantEmotion];
+    
+    // Voice-specific note selection preferences
+    const voicePreferences = {
+        metronome: [1, 3, 5], // Strong degrees
+        melody: [1, 2, 3, 4, 5, 6, 7], // Full range
+        countermelody: [2, 4, 6, 7], // Counter-motion preference
+        soprano: [5, 6, 7], // Upper register
+        alto: [3, 4, 5], // Mid-upper register
+        tenor: [2, 3, 4], // Mid register
+        harmony: [1, 3, 5, 7], // Harmonic intervals
+        'inner-harmony': [2, 4, 6], // Inner voices
+        bass: [1, 5], // Root and fifth
+        pedal: [1] // Mostly root
+    };
+    
+    if (voicePreferences[voiceType]) {
+        const preferences = voicePreferences[voiceType];
+        if (Math.random() < 0.6) {
+            proposedNote = preferences[Math.floor(Math.random() * preferences.length)];
+        }
+    }
+    
+    if (emotionalProfile) {
+        // Emotional bias system based on current dominant emotion
+        if (emotionalTides.longing > 0.6) {
+            const tensionNotes = [2, 4, 7];
+            if (Math.random() < 0.5) {
+                proposedNote = tensionNotes[Math.floor(Math.random() * tensionNotes.length)];
+            }
+        }
+        
+        if (emotionalTides.ecstasy > 0.5) {
+            const joyfulNotes = [1, 3, 5];
+            if (Math.random() < 0.4) {
+                proposedNote = joyfulNotes[Math.floor(Math.random() * joyfulNotes.length)];
+            }
+        }
+        
+        if (emotionalTides.melancholy > 0.5) {
+            const melancholicNotes = [2, 3, 6];
+            if (Math.random() < 0.3) {
+                proposedNote = melancholicNotes[Math.floor(Math.random() * melancholicNotes.length)];
+            }
+        }
+        
+        if (emotionalTides.transcendence > 0.5) {
+            const transcendentNotes = [1, 4, 5];
+            if (Math.random() < 0.2) {
+                proposedNote = transcendentNotes[Math.floor(Math.random() * transcendentNotes.length)];
+            }
+        }
+    }
+    
+    // Phrase context influence
+    if (enhancedState.currentPhrase) {
+        const phraseContext = enhancedState.currentPhrase.getCurrentContext();
+        const intensity = enhancedState.currentPhrase.getExpressiveIntensity();
+        
+        if (phraseContext === 'climax' && Math.random() < 0.5) {
+            proposedNote = Math.max(proposedNote, Math.floor(maxScaleDegree * 0.7) + 1);
+        } else if (phraseContext === 'resolution' && Math.random() < 0.4) {
+            proposedNote = 1;
+        }
+        
+        enhancedState.expressiveIntensity = intensity;
+    }
+    
+    return Math.max(1, Math.min(maxScaleDegree, proposedNote));
+}
+
+// ========================================================================================
+// HARMONIC ANALYSIS SYSTEM FOR VERB SELECTION
+// ========================================================================================
+
+function analyzeHarmonicSituation(scaleDegree, voiceType, previousNote) {
+    let harmonicContext = {
+        tension: enhancedState.tension,
+        dissonance: enhancedState.currentDissonanceLevel,
+        voiceEntry: enhancedState.voicesEntering.has(voiceType),
+        voiceExit: enhancedState.voicesExiting.has(voiceType),
+        consonance: enhancedState.harmony,
+        climax: false,
+        bassFoundation: voiceType === 'bass' || voiceType === 'pedal',
+        highRegister: voiceType === 'soprano' || voiceType === 'alto',
+        sustained: false, // Will be set based on duration
+        rhythmicPulse: voiceType === 'metronome',
+        modalChange: false, // Will be set when scale changes
+        emotionalPeak: enhancedState.emotionalSystemActive && emotionalTides.emotionalIntensity > 0.7,
+        voiceDoubling: enhancedState.currentVoiceDoubling.has(scaleDegree),
+        counterpoint: false, // Will be calculated based on voice motion
+        pedalPoint: voiceType === 'pedal',
+        ascending: previousNote && scaleDegree > previousNote,
+        descending: previousNote && scaleDegree < previousNote,
+        static: previousNote && scaleDegree === previousNote,
+        largeLeap: previousNote && Math.abs(scaleDegree - previousNote) > 3,
+        smallStep: previousNote && Math.abs(scaleDegree - previousNote) <= 2,
+        intervalMotion: previousNote ? scaleDegree - previousNote : 0
+    };
+    
+    // Check phrase context for climax
+    if (enhancedState.currentPhrase) {
+        const context = enhancedState.currentPhrase.getCurrentContext();
+        harmonicContext.climax = context === 'climax';
+        harmonicContext.cadential = context === 'resolution';
+    }
+    
+    // Calculate dissonance based on current active notes
+    let dissonanceLevel = 0;
+    enhancedState.activeNotes.forEach(note => {
+        const interval = Math.abs(note.note - scaleDegree);
+        if (interval === 1 || interval === 6) {
+            dissonanceLevel += 0.3;
+        } else if (interval === 2 || interval === 7) {
+            dissonanceLevel += 0.2;
+        }
+    });
+    
+    harmonicContext.tension = Math.min(1.0, dissonanceLevel);
+    harmonicContext.dissonance = dissonanceLevel > 0.5;
+    harmonicContext.consonance = dissonanceLevel < 0.2;
+    
+    enhancedState.currentDissonanceLevel = dissonanceLevel;
+    
+    return harmonicContext;
+}
+
+function selectVerbFromHarmonicContext(harmonicContext) {
+    // Priority order for verb selection based on harmonic situation
+    
+    if (harmonicContext.tension > 0.7) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.tension, [3, 2, 2, 1, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.voiceEntry) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.voiceEntry, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.voiceExit) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.voiceExit, [3, 2, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.climax) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.climax, [4, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.cadential) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.resolution, [4, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.emotionalPeak) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.emotionalPeak, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.consonance) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.consonance, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.bassFoundation) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.bassFoundation, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.highRegister) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.highRegister, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.rhythmicPulse) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.rhythmicPulse, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.voiceDoubling) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.voiceDoubling, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.pedalPoint) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.pedalPoint, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.largeLeap) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.largeLeap, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.ascending) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.ascending, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.descending) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.descending, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.static) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.static, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    if (harmonicContext.smallStep) {
+        return weightedChoice(HARMONIC_VERB_SYSTEM.smallStep, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+    }
+    
+    // Default to progression verbs
+    return weightedChoice(HARMONIC_VERB_SYSTEM.progression, [3, 3, 2, 2, 1, 1, 1, 1, 1, 1]);
+}
+
+// ========================================================================================
+// 10-VOICE NOTE PLAYING SYSTEM WITH ORNAMENTATION
+// ========================================================================================
+
+function selectOrnamentForVoice(voiceType) {
+    // Ornamentation probabilities: 
+    // Vibrato: 30/100 = 30%, Slide: 10/100 = 10%, Trill: 3/100 = 3%
+    
+    const ornamentRoll = Math.random() * 100;
+    
+    if (ornamentRoll < 3) {
+        return 'trill'; // 3% chance
+    } else if (ornamentRoll < 13) {
+        return 'slide'; // 10% chance (3 + 10)
+    } else if (ornamentRoll < 43) {
+        return 'vibrato'; // 30% chance (13 + 30)
+    }
+    
+    return null; // 57% chance of no ornamentation
+}
+
+function playVoiceNote(voiceType, scaleDegree, durationBeats = 1) {
+    try {
+        if (!currentScaleIntervals || currentScaleIntervals.length === 0) {
+            currentScaleIntervals = [0, 2, 4, 5, 7, 9, 11];
+        }
+        
+        if (!keyFrequencies || Object.keys(keyFrequencies).length === 0) {
+            keyFrequencies = {
+                'C': 220, 'C#': 233, 'D': 246, 'D#': 261, 'E': 277, 'F': 293,
+                'F#': 311, 'G': 330, 'G#': 349, 'A': 370, 'A#': 392, 'B': 415
+            };
+        }
+        
+        if (!currentKey) currentKey = 'C';
+        
+        const validScaleDegree = Math.min(Math.max(1, scaleDegree), currentScaleIntervals.length);
+        const interval = currentScaleIntervals[validScaleDegree - 1];
+        const baseFreq = keyFrequencies[currentKey];
+        
+        if (typeof interval !== 'number' || !isFinite(interval) || !baseFreq) return;
+        
+        let frequency = baseFreq * Math.pow(2, interval / 12);
+        if (!isFinite(frequency) || frequency <= 0) return;
+        
+        // Apply voice-specific octave shifts
+        const voiceChar = VOICE_CHARACTERISTICS[voiceType];
+        if (voiceChar) {
+            frequency *= Math.pow(2, voiceChar.octave);
+        }
+        
+        // Decide on ornamentation for this voice
+        const ornamentType = selectOrnamentForVoice(voiceType);
+        
+        // Track voice entry
+        if (!enhancedState.activeVoices.has(voiceType)) {
+            enhancedState.voicesEntering.add(voiceType);
+        }
+        
+        // Analyze harmonic situation
+        const previousNote = enhancedState.lastVoiceActivity[voiceType];
+        const harmonicContext = analyzeHarmonicSituation(validScaleDegree, voiceType, previousNote);
+        
+        // Track voice doubling
+        if (enhancedState.currentVoiceDoubling.has(validScaleDegree)) {
+            enhancedState.currentVoiceDoubling.set(validScaleDegree, enhancedState.currentVoiceDoubling.get(validScaleDegree) + 1);
+        } else {
+            enhancedState.currentVoiceDoubling.set(validScaleDegree, 1);
+        }
+        
+        // Determine emotional styling
+        let emotionalStyle = null;
+        if (enhancedState.emotionalSystemActive) {
+            const dominantEmotion = emotionalTides.dominantEmotion;
+            const intensity = emotionalTides.emotionalIntensity;
+            
+            if (intensity > 0.5) {
+                emotionalStyle = dominantEmotion;
+            }
+        }
+        
+        // Add to staff notation
+        addMusicalNoteToStaff(validScaleDegree, voiceType === 'metronome', false, voiceChar?.isBass || false, durationBeats, null, emotionalStyle);
+        
+        // Generate narrative with expanded verb system
+        if (Math.random() < 0.9) { // Very high frequency for continuous Form verb flow
+            generateExpandedNarrativeEvent(validScaleDegree, harmonicContext, voiceType);
+        }
+        
+        enhancedState.lastNote = validScaleDegree;
+        
+        setTimeout(() => {
+            const result = createMusicalOscillator(frequency, voiceType, validScaleDegree, null, ornamentType);
+            if (!result) return;
+            
+            const { oscillator, gainNode, planet, vibratoLFO, vibratoGain, trillOscillator, trillGain } = result;
+            
+            const now = audioContext.currentTime;
+            let actualDuration = (durationBeats * 60) / currentTempo;
+            
+            let sustainGain = voiceChar ? voiceChar.sustain * 0.4 : 0.4; // Reduced for 10 voices
+            
+            // Emotional gain adjustments
+            if (emotionalStyle && enhancedState.emotionalSystemActive) {
+                const intensity = emotionalTides.emotionalIntensity;
+                switch (emotionalStyle) {
+                    case 'longing':
+                        sustainGain *= (0.9 + intensity * 0.2);
+                        break;
+                    case 'ecstasy':
+                        sustainGain *= (1.1 + intensity * 0.3);
+                        break;
+                    case 'melancholy':
+                        sustainGain *= (0.7 + intensity * 0.1);
+                        break;
+                    case 'transcendence':
+                        sustainGain *= (0.8 + intensity * 0.4);
+                        break;
+                }
+            }
+            
+            let attackTime = voiceChar ? voiceChar.attack : 0.03;
+            let releaseTime = voiceChar ? voiceChar.release : 0.08;
+            
+            // Main oscillator envelope
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(sustainGain, now + attackTime);
+            gainNode.gain.linearRampToValueAtTime(sustainGain * 0.8, now + actualDuration - releaseTime);
+            gainNode.gain.linearRampToValueAtTime(0.001, now + actualDuration);
+            
+            // Handle ornamentations
+            if (ornamentType === 'slide') {
+                // Create frequency slide from 20% below to target frequency
+                const startFreq = frequency * 0.8;
+                const slideTime = Math.min(actualDuration * 0.3, 0.2); // 30% of note or max 200ms
+                
+                oscillator.frequency.setValueAtTime(startFreq, now);
+                oscillator.frequency.exponentialRampToValueAtTime(frequency, now + slideTime);
+                
+            } else if (ornamentType === 'trill' && trillOscillator && trillGain) {
+                // Set up alternating trill pattern
+                const trillSpeed = 8; // Hz
+                const trillDuration = actualDuration * 0.7; // Trill for 70% of note duration
+                const trillStart = now + (actualDuration * 0.15); // Start 15% into the note
+                
+                // Trill envelope
+                trillGain.gain.setValueAtTime(0, now);
+                trillGain.gain.setValueAtTime(0, trillStart);
+                
+                // Create rapid on/off pattern for trill
+                const trillSteps = Math.floor(trillDuration * trillSpeed);
+                const stepDuration = trillDuration / trillSteps;
+                
+                for (let i = 0; i < trillSteps; i++) {
+                    const stepTime = trillStart + (i * stepDuration);
+                    const trillGainValue = (i % 2 === 0) ? 0 : sustainGain * 0.6;
+                    trillGain.gain.setValueAtTime(trillGainValue, stepTime);
+                }
+                
+                trillGain.gain.setValueAtTime(0, trillStart + trillDuration);
+                
+                trillOscillator.start(now);
+                trillOscillator.stop(now + actualDuration + 0.01);
+                
+            } else if (ornamentType === 'vibrato' && vibratoLFO) {
+                // Vibrato LFO is already connected, just start it
+                vibratoLFO.start(now);
+                vibratoLFO.stop(now + actualDuration + 0.01);
+            }
+            
+            oscillator.start(now);
+            oscillator.stop(now + actualDuration + 0.01);
+            
+            const noteObj = getNoteObject();
+            noteObj.note = validScaleDegree;
+            noteObj.endTime = Date.now() + (actualDuration * 1000);
+            enhancedState.activeNotes.push(noteObj);
+            
+        }, Math.random() * 50); // Small random delay for more natural timing
+        
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+// ========================================================================================
+// EXPANDED NARRATIVE SYSTEM WITH HARMONIC VERB MAPPING
+// ========================================================================================
+
+let narrativeStream = "";
+let wordQueue = [];
+let typingActive = false;
+let narrativeWordCount = 0;
+
+function addWordToStream(word) {
+    if (!word) return;
+    wordQueue.push(word);
+    if (!typingActive) {
+        processWordQueue();
+    }
+    
+    if (wordQueue.length > 40) {
+        wordQueue = wordQueue.slice(-25);
+    }
+}
+
+function processWordQueue() {
+    if (wordQueue.length === 0) {
+        typingActive = false;
+        return;
+    }
+    
+    typingActive = true;
+    const word = wordQueue.shift();
+    
+    if (narrativeStream.length > 0 && !narrativeStream.endsWith(' ')) {
+        narrativeStream += ' ';
+    }
+    narrativeStream += word;
+    narrativeWordCount++;
+    
+    if (narrativeWordCount > 120) {
+        const words = narrativeStream.split(' ');
+        narrativeStream = words.slice(-80).join(' ');
+        narrativeWordCount = 80;
+    }
+    
+    setTimeout(() => {
+        updateNarrativeDisplay();
+        setTimeout(() => processWordQueue(), 200); // Slower processing for AI typing effect
+    }, 150); // Much slower for AI chatbot typing feel
+}
+
+function ensureNarrativeFlow() {
+    if (!typingActive && wordQueue.length > 0) {
+        processWordQueue();
+    }
+}
+
+function updateNarrativeDisplay() {
+    const content = document.getElementById('narrativeContent');
+    if (content) {
+        content.textContent = narrativeStream;
+        const container = document.getElementById('narrativeFlow');
+        if (container) container.scrollTop = container.scrollHeight;
+    }
+}
+
+function generateExpandedNarrativeEvent(scaleDegree, harmonicContext, voiceType) {
+    if (!enhancedState.narrativeActive || Math.random() < 0.1) return;
+    
+    if (!currentPlanetaryKey || currentPlanetaryKey.length === 0) return;
+    
+    const planetIndex = Math.min(scaleDegree - 1, currentPlanetaryKey.length - 1);
+    const planet = currentPlanetaryKey[planetIndex];
+    if (!planet) return;
+    
+    // Get the form (removing underscores and converting to readable format)
+    const formText = (planet.form || 'Mystery').replace(/_/g, ' ');
+    addWordToStream(formText);
+    
+    // Select verb based on harmonic context
+    const verb = selectVerbFromHarmonicContext(harmonicContext);
+    addWordToStream(verb);
+}
+
+function resetNarrative() {
+    narrativeStream = "The Good awakens Justice radiates Beauty rises";
+    wordQueue = [];
+    typingActive = false;
+    narrativeWordCount = 0;
+    
+    const content = document.getElementById('narrativeContent');
+    if (content) {
+        content.textContent = narrativeStream;
+    }
+}
+
+// ========================================================================================
+// ENHANCED STAFF NOTATION
+// ========================================================================================
+
+function addMusicalNoteToStaff(scaleDegree, isMetronome = false, isHarmony = false, isBass = false, durationBeats = 0.125, classicalStyle = null, emotionalStyle = null) {
+    try {
+        const staff = document.querySelector('.staff');
+        if (!staff) return false;
+        
+        const note = document.createElement('div');
+        const beatDurationInSeconds = 60 / currentTempo;
+        const noteWidth = Math.max(3, durationBeats * beatDurationInSeconds * 60);
+        
+        note.className = 'note';
+        
+        // Emotional style priority
+        if (emotionalStyle) {
+            note.classList.add(`emotional-${emotionalStyle}`);
+        } else if (isMetronome) {
+            note.classList.add('metronome-note');
+        } else if (isBass) {
+            note.classList.add('bass-note');
+        } else if (isHarmony) {
+            note.classList.add('harmony-note');
+        } else {
+            note.classList.add('melody-note');
+        }
+        
+        note.style.width = noteWidth + 'px';
+        
+        const useBassClef = isBass || isMetronome;
+        const notePosition = getStaffPosition(scaleDegree, currentKey, useBassClef);
+        const absolutePosition = useBassClef ?
+            65 + (notePosition * 0.35) :
+            5 + (notePosition * 0.35);
+        
+        note.style.top = absolutePosition + '%';
+        note.style.left = '100%';
+        
+        staff.appendChild(note);
+        note.style.animationDuration = '2.5s';
+        
+        setTimeout(() => {
+            if (note.parentNode) {
+                note.parentNode.removeChild(note);
+            }
+        }, 3000);
+        
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function getStaffPosition(scaleDegree, currentKey, isBass = false) {
+    try {
+        const chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        const noteToChromaticIndex = {
+            'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11
+        };
+        
+        const rootIndex = noteToChromaticIndex[currentKey];
+        if (rootIndex === undefined) return 50;
+        
+        const ionian = [0, 2, 4, 5, 7, 9, 11];
+        const interval = ionian[scaleDegree - 1];
+        const noteIndex = (rootIndex + interval) % 12;
+        const noteName = chromaticNotes[noteIndex];
+        
+        const treblePositions = {
+            'C': 12.5, 'C#': 12.5, 'D': 25, 'D#': 25, 'E': 37.5,
+            'F': 50, 'F#': 50, 'G': 62.5, 'G#': 62.5, 'A': 75, 'A#': 75, 'B': 87.5
+        };
+        
+        const bassPositions = {
+            'C': 100, 'C#': 100, 'D': 87.5, 'D#': 87.5, 'E': 75,
+            'F': 62.5, 'F#': 62.5, 'G': 50, 'G#': 50, 'A': 37.5, 'A#': 37.5, 'B': 25
+        };
+        
+        return isBass ? (bassPositions[noteName] ?? 50) : (treblePositions[noteName] ?? 50);
+    } catch (error) {
+        return 50;
+    }
+}
+
+// ========================================================================================
+// HARMONIC ANALYSIS
+// ========================================================================================
+
+function getSimpleHarmony() {
+    const activeCount = enhancedState.activeNotes.length;
+    if (activeCount === 0) return 0.5;
+    
+    let dissonance = 0;
+    for (let i = 0; i < activeCount - 1; i++) {
+        const interval = Math.abs(enhancedState.activeNotes[i].note - enhancedState.activeNotes[i + 1].note) % 7;
+        dissonance += (interval === 1 || interval === 6) ? 0.8 : 0.1;
+    }
+    
+    const harmony = Math.max(0, 1 - (dissonance / activeCount));
+    enhancedState.harmony = harmony;
+    enhancedState.tension = 1 - harmony;
+    
+    return harmony;
+}
+
+// ========================================================================================
+// ENHANCED VISUALIZATION SYSTEM WITH 10 VOICE RINGS
+// ========================================================================================
+
+class EnhancedLayout {
+    constructor() {
+        this.container = document.getElementById('gameContainer');
+        this.oscilloscope = document.getElementById('oscilloscope');
+        this.ctx = this.oscilloscope.getContext('2d');
+        
+        this.setupLayout();
+        this.setupResizeHandler();
+    }
+    
+    calculateOptimalScale() {
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const availableSize = Math.min(windowWidth, windowHeight);
+        const padding = availableSize < 400 ? 16 : 40;
+        const maxContainerSize = availableSize - padding;
+        const targetSize = 500;
+        
+        let optimalScale = maxContainerSize / targetSize;
+        optimalScale = Math.max(0.3, Math.min(1.2, optimalScale));
+        
+        const containerSize = Math.min(targetSize * optimalScale, maxContainerSize);
+        
+        return { displayScale: optimalScale, containerSize };
+    }
+    
+    setupLayout() {
+        const scaleInfo = this.calculateOptimalScale();
+        
+        this.container.style.width = scaleInfo.containerSize + 'px';
+        this.container.style.height = scaleInfo.containerSize + 'px';
+        
+        const oscilloscopeSize = Math.max(150, 280 * scaleInfo.displayScale);
+        this.oscilloscope.width = oscilloscopeSize;
+        this.oscilloscope.height = oscilloscopeSize;
+        this.oscilloscope.style.width = oscilloscopeSize + 'px';
+        this.oscilloscope.style.height = oscilloscopeSize + 'px';
+        
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+    }
+    
+    setupResizeHandler() {
+        let resizeTimeout = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => this.setupLayout(), 100);
+        });
+    }
+    
+    getOscilloscopeSize() {
+        return { width: this.oscilloscope.width, height: this.oscilloscope.height };
+    }
+}
+
+function setupEnhancedOscilloscope() {
+    try {
+        if (!layout) return false;
+        
+        const size = layout.getOscilloscopeSize();
+        const ctx = layout.ctx;
+        let phase = 0;
+        let rotationX = 0;
+        let rotationY = 0;
+        let rotationZ = 0;
+        let orbitalTrails = [];
+        let emotionalParticles = [];
+        let dragTrails = []; // New drag effect trails
+        
+        // Initialize emotional particles
+        for (let i = 0; i < 60; i++) { // Reduced for performance with 10 voices
+            emotionalParticles.push({
+                x: Math.random(),
+                y: Math.random(),
+                z: Math.random(),
+                vx: (Math.random() - 0.5) * 0.001,
+                vy: (Math.random() - 0.5) * 0.001,
+                vz: (Math.random() - 0.5) * 0.0005,
+                life: 1.0,
+                emotion: ['longing', 'ecstasy', 'melancholy', 'transcendence'][Math.floor(Math.random() * 4)],
+                intensity: Math.random()
+            });
+        }
+        
+        function drawEnhancedVisualization() {
+            if (!isPlaying) return;
+            
+            animationId = requestAnimationFrame(drawEnhancedVisualization);
+            
+            if (!analyser || !dataArray) return;
+            
+            try {
+                analyser.getByteTimeDomainData(dataArray);
+                analyser.getByteFrequencyData(dataArray);
+                
+                const width = size.width;
+                const height = size.height;
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = Math.min(centerX, centerY) * 0.7;
+                
+                // Gentler background fade for better drag visibility
+                const harmony = getSimpleHarmony();
+                let bgAlpha = 0.08; // Reduced for drag effect visibility
+                
+                if (enhancedState.emotionalSystemActive) {
+                    bgAlpha *= (1 + emotionalTides.emotionalIntensity * 0.15);
+                }
+                
+                ctx.fillStyle = `rgba(0,0,0,${bgAlpha})`;
+                ctx.fillRect(0, 0, width, height);
+                
+                // Update 3D rotations with drag/inertia for better visual effect
+                const audioIntensity = dataArray.reduce((sum, val) => sum + val, 0) / dataArray.length / 128;
+                
+                // Apply rotational drag/inertia
+                const dragFactor = 0.98; // Slight drag on rotation
+                let rotationXSpeed = 0.005 + (audioIntensity * 0.01);
+                let rotationYSpeed = 0.008 + (enhancedState.tension * 0.01);
+                let rotationZSpeed = 0.003 + (emotionalTides.emotionalIntensity * 0.008);
+                
+                // Apply drag to create more fluid motion
+                rotationX += rotationXSpeed * dragFactor;
+                rotationY += rotationYSpeed * dragFactor;
+                rotationZ += rotationZSpeed * dragFactor;
+                
+                // Enhanced central star with emotional pulsing
+                let pulseIntensity = Math.sin(phase * 6) * 0.5 + 0.5;
+                
+                if (enhancedState.emotionalSystemActive) {
+                    const dominantEmotion = emotionalTides.dominantEmotion;
+                    const emotionalIntensity = emotionalTides.emotionalIntensity;
+                    pulseIntensity *= (1 + emotionalIntensity * 0.5);
+                    
+                    switch (dominantEmotion) {
+                        case 'longing':
+                            pulseIntensity *= (1 + Math.sin(phase * 4) * 0.3);
+                            break;
+                        case 'ecstasy':
+                            pulseIntensity *= (1 + Math.sin(phase * 12) * 0.4);
+                            break;
+                        case 'melancholy':
+                            pulseIntensity *= (1 + Math.sin(phase * 2) * 0.2);
+                            break;
+                        case 'transcendence':
+                            pulseIntensity *= (1 + Math.sin(phase * 8) * 0.6);
+                            break;
+                    }
+                }
+                
+                const starRadius = radius * 0.1 * (0.8 + pulseIntensity * 0.4);
+                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, starRadius);
+                
+                if (enhancedState.emotionalSystemActive) {
+                    const dominantEmotion = emotionalTides.dominantEmotion;
+                    const intensity = emotionalTides.emotionalIntensity;
+                    
+                    switch (dominantEmotion) {
+                        case 'longing':
+                            gradient.addColorStop(0, `rgba(255, 255, 255, ${0.9 + pulseIntensity * 0.1})`);
+                            gradient.addColorStop(0.3, `rgba(220, 20, 60, ${0.8 * intensity})`);
+                            gradient.addColorStop(0.6, `rgba(255, 20, 147, ${0.6 * intensity})`);
+                            gradient.addColorStop(1, `rgba(220, 20, 60, 0)`);
+                            break;
+                        case 'ecstasy':
+                            gradient.addColorStop(0, `rgba(255, 255, 255, ${0.9 + pulseIntensity * 0.1})`);
+                            gradient.addColorStop(0.3, `rgba(255, 215, 0, ${0.9 * intensity})`);
+                            gradient.addColorStop(0.6, `rgba(255, 165, 0, ${0.7 * intensity})`);
+                            gradient.addColorStop(1, `rgba(255, 215, 0, 0)`);
+                            break;
+                        case 'melancholy':
+                            gradient.addColorStop(0, `rgba(255, 255, 255, ${0.9 + pulseIntensity * 0.1})`);
+                            gradient.addColorStop(0.3, `rgba(65, 105, 225, ${0.7 * intensity})`);
+                            gradient.addColorStop(0.6, `rgba(100, 149, 237, ${0.5 * intensity})`);
+                            gradient.addColorStop(1, `rgba(65, 105, 225, 0)`);
+                            break;
+                        case 'transcendence':
+                            gradient.addColorStop(0, `rgba(255, 255, 255, ${0.9 + pulseIntensity * 0.1})`);
+                            gradient.addColorStop(0.2, `rgba(147, 112, 219, ${0.8 * intensity})`);
+                            gradient.addColorStop(0.4, `rgba(221, 160, 221, ${0.7 * intensity})`);
+                            gradient.addColorStop(0.6, `rgba(230, 230, 250, ${0.6 * intensity})`);
+                            gradient.addColorStop(1, `rgba(147, 112, 219, 0)`);
+                            break;
+                        default:
+                            gradient.addColorStop(0, `rgba(255, 215, 0, ${0.8 + pulseIntensity * 0.2})`);  
+                            gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                    }
+                } else {
+                    gradient.addColorStop(0, `rgba(255, 215, 0, ${0.8 + pulseIntensity * 0.2})`);  
+                    gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, starRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 10-Voice waveform rings with ethereal 3D spin
+                VOICE_DEFINITIONS.forEach((voice, voiceIndex) => {
+                    const points = 128; // Reduced for performance
+                    const dataSegment = Math.floor(dataArray.length / VOICE_DEFINITIONS.length);
+                    const startIndex = voiceIndex * dataSegment;
+                    
+                    const gradient = ctx.createLinearGradient(
+                        centerX - voice.radius * radius, centerY - voice.radius * radius,
+                        centerX + voice.radius * radius, centerY + voice.radius * radius
+                    );
+                    gradient.addColorStop(0, `rgba(${voice.color[0]}, ${voice.color[1]}, ${voice.color[2]}, 0.8)`);
+                    gradient.addColorStop(0.5, `rgba(${voice.color[0]}, ${voice.color[1]}, ${voice.color[2]}, 0.6)`);
+                    gradient.addColorStop(1, `rgba(${voice.color[0]}, ${voice.color[1]}, ${voice.color[2]}, 0.3)`);
+                    
+                    // Calculate average amplitude
+                    let avgAmplitude = 0;
+                    for (let i = 0; i < dataSegment; i++) {
+                        avgAmplitude += Math.abs(dataArray[startIndex + i] - 128);
+                    }
+                    avgAmplitude = (avgAmplitude / dataSegment) / 128.0;
+                    
+                    const dynamicWidth = voice.baseWidth * 0.7 + (avgAmplitude * 1.2); // Reduced for 10 voices
+                    
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = dynamicWidth;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.globalAlpha = 0.7; // Reduced opacity for 10 voices
+                    
+                    ctx.beginPath();
+                    
+                    let prevX = 0, prevY = 0;
+                    const smoothingPoints = [];
+                    
+                    // Calculate all points with ethereal 3D spin
+                    for (let i = 0; i < points; i++) {
+                        const angle = (i / points) * Math.PI * 2 + phase * (0.2 + voiceIndex * 0.02);
+                        
+                        const progress = i / points;
+                        const dataIndex = startIndex + Math.floor(progress * dataSegment);
+                        const amplitude = (dataArray[dataIndex] - 128) / 128.0;
+                        
+                        // Basic ring coordinates
+                        const r = voice.radius * radius;
+                        const smoothAmplitude = amplitude * 8 * (0.8 + Math.sin(angle * 2) * 0.2);
+                        
+                        // Apply ethereal 3D rotation to the basic ring
+                        let ringX = Math.cos(angle) * r;
+                        let ringY = Math.sin(angle) * r;
+                        let ringZ = 0;
+                        
+                        // Simple 3D rotation without complex projection
+                        // X-axis rotation
+                        const cosX = Math.cos(rotationX);
+                        const sinX = Math.sin(rotationX);
+                        const tempY = ringY * cosX - ringZ * sinX;
+                        ringZ = ringY * sinX + ringZ * cosX;
+                        ringY = tempY;
+                        
+                        // Y-axis rotation  
+                        const cosY = Math.cos(rotationY);
+                        const sinY = Math.sin(rotationY);
+                        const tempX = ringX * cosY + ringZ * sinY;
+                        ringZ = -ringX * sinY + ringZ * cosY;
+                        ringX = tempX;
+                        
+                        // Z-axis rotation
+                        const cosZ = Math.cos(rotationZ);
+                        const sinZ = Math.sin(rotationZ);
+                        const finalX = ringX * cosZ - ringY * sinZ;
+                        const finalY = ringX * sinZ + ringY * cosZ;
+                        
+                        // Final screen coordinates (keeping original look)
+                        const x = centerX + finalX + smoothAmplitude;
+                        const y = centerY + finalY + smoothAmplitude;
+                        
+                        smoothingPoints.push({ x, y, amplitude: Math.abs(amplitude) });
+                    }
+                    
+                    // Draw smooth curves (original method)
+                    for (let i = 0; i < smoothingPoints.length; i++) {
+                        const current = smoothingPoints[i];
+                        
+                        if (i === 0) {
+                            ctx.moveTo(current.x, current.y);
+                            prevX = current.x;
+                            prevY = current.y;
+                        } else {
+                            const cpX = (prevX + current.x) / 2;
+                            const cpY = (prevY + current.y) / 2;
+                            ctx.quadraticCurveTo(prevX, prevY, cpX, cpY);
+                            prevX = current.x;
+                            prevY = current.y;
+                        }
+                        
+                        // Add trail points less frequently
+                        if (i % 32 === 0 && current.amplitude > 0.2) {
+                            orbitalTrails.push({
+                                x: current.x,
+                                y: current.y,
+                                voice: voiceIndex,
+                                life: 0.4,
+                                color: voice.color,
+                                name: voice.name,
+                                amplitude: current.amplitude
+                            });
+                        }
+                    }
+                    
+                    // Close the path
+                    if (smoothingPoints.length > 0) {
+                        const first = smoothingPoints[0];
+                        const cpX = (prevX + first.x) / 2;
+                        const cpY = (prevY + first.y) / 2;
+                        ctx.quadraticCurveTo(prevX, prevY, cpX, cpY);
+                    }
+                    
+                    ctx.stroke();
+                    ctx.globalAlpha = 1.0;
+                    
+                    // Add drag effect - sample points for trailing
+                    const dragSampleCount = 8; // Number of drag trail points per ring
+                    for (let d = 0; d < dragSampleCount; d++) {
+                        const dragIndex = Math.floor((d / dragSampleCount) * smoothingPoints.length);
+                        const dragPoint = smoothingPoints[dragIndex];
+                        
+                        if (dragPoint) {
+                            dragTrails.push({
+                                x: dragPoint.x,
+                                y: dragPoint.y,
+                                voice: voiceIndex,
+                                life: 0.8, // Longer life for drag effect
+                                color: voice.color,
+                                size: dynamicWidth * 0.3,
+                                opacity: 0.4
+                            });
+                        }
+                    }
+                });
+                
+                // Render drag trails for motion blur effect
+                dragTrails = dragTrails.filter(drag => {
+                    drag.life -= 0.08; // Faster decay for smoother trails
+                    if (drag.life > 0) {
+                        const dragAlpha = drag.life * drag.opacity;
+                        const dragSize = drag.size * drag.life; // Shrink as it fades
+                        
+                        ctx.fillStyle = `rgba(${drag.color[0]}, ${drag.color[1]}, ${drag.color[2]}, ${dragAlpha})`;
+                        ctx.beginPath();
+                        ctx.arc(drag.x, drag.y, dragSize, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        return true;
+                    }
+                    return false;
+                });
+                
+                // Limit drag trails for performance
+                if (dragTrails.length > 200) {
+                    dragTrails = dragTrails.slice(-150);
+                }
+                
+                // Update emotional particles
+                emotionalParticles.forEach(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.z += particle.vz;
+                    particle.life -= 0.001;
+                    
+                    if (particle.x < 0) particle.x = 1;
+                    if (particle.x > 1) particle.x = 0;
+                    if (particle.y < 0) particle.y = 1;
+                    if (particle.y > 1) particle.y = 0;
+                    if (particle.z < -0.5) particle.z = 0.5;
+                    if (particle.z > 0.5) particle.z = -0.5;
+                    
+                    if (enhancedState.emotionalSystemActive) {
+                        const emotionTide = emotionalTides[particle.emotion] || 0;
+                        particle.vx += (Math.random() - 0.5) * emotionTide * 0.00008;
+                        particle.vy += (Math.random() - 0.5) * emotionTide * 0.00008;
+                        particle.vz += (Math.random() - 0.5) * emotionTide * 0.00004;
+                    }
+                    
+                    if (particle.life <= 0) {
+                        particle.x = Math.random();
+                        particle.y = Math.random();
+                        particle.z = (Math.random() - 0.5);
+                        particle.life = 1.0;
+                        particle.emotion = ['longing', 'ecstasy', 'melancholy', 'transcendence'][Math.floor(Math.random() * 4)];
+                        particle.intensity = Math.random();
+                    }
+                });
+                
+                // Draw emotional particles
+                emotionalParticles.forEach(particle => {
+                    const alpha = particle.life;
+                    if (alpha > 0.01) {
+                        const screenX = centerX + (particle.x - 0.5) * width * 0.8;
+                        const screenY = centerY + (particle.y - 0.5) * height * 0.8;
+                        
+                        let color;
+                        let size = 1.5;
+                        let emotionalIntensity = 1;
+                        
+                        if (enhancedState.emotionalSystemActive) {
+                            emotionalIntensity = emotionalTides[particle.emotion] || 0.1;
+                        }
+                        
+                        switch (particle.emotion) {
+                            case 'longing':
+                                color = `rgba(220, 20, 60, ${alpha * emotionalIntensity})`;
+                                size = (2 + emotionalIntensity * 1.5);
+                                break;
+                            case 'ecstasy':
+                                color = `rgba(255, 215, 0, ${alpha * emotionalIntensity})`;
+                                size = (2.5 + emotionalIntensity * 2);
+                                break;
+                            case 'melancholy':
+                                color = `rgba(65, 105, 225, ${alpha * emotionalIntensity})`;
+                                size = (1.5 + emotionalIntensity * 1);
+                                break;
+                            case 'transcendence':
+                                color = `rgba(147, 112, 219, ${alpha * emotionalIntensity})`;
+                                size = (3 + emotionalIntensity * 2.5);
+                                break;
+                            default:
+                                color = `rgba(255, 255, 255, ${alpha})`;
+                        }
+                        
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                
+                // Voice trails
+                orbitalTrails = orbitalTrails.filter(trail => {
+                    trail.life -= 0.04;
+                    if (trail.life > 0) {
+                        const alpha = trail.life;
+                        
+                        let trailSize = 0.6;
+                        trailSize *= (0.5 + trail.amplitude * 1);
+                        
+                        ctx.fillStyle = `rgba(${trail.color[0]}, ${trail.color[1]}, ${trail.color[2]}, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(trail.x, trail.y, trailSize, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        return true;
+                    }
+                    return false;
+                });
+                
+                phase += 0.015 + (enhancedState.tension * 0.02);
+                
+                if (enhancedState.emotionalSystemActive) {
+                    phase += emotionalTides.emotionalIntensity * 0.004;
+                }
+                
+            } catch (error) {
+                // Silent error handling
+            }
+        }
+        
+        drawEnhancedVisualization();
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+let layout = null;
+
+// ========================================================================================
+// ENHANCED DISPLAY SYSTEM WITH 10-VOICE STATUS
+// ========================================================================================
+
+function batchMusicalDisplayUpdate() {
+    try {
+        const barInCycle = ((currentBarCount - 1) % 12) + 1;
+        
+        if (!currentScaleIntervals || currentScaleIntervals.length === 0) {
+            currentScaleIntervals = [0, 2, 4, 5, 7, 9, 11];
+        }
+        
+        if (!currentPlanetaryKey || currentPlanetaryKey.length === 0) {
+            currentPlanetaryKey = [{ name: 'Sol', form: 'The_Good' }];
+        }
+        
+        if (!currentScale || currentScale.length === 0) {
+            currentScale = [{ celestialBody: 'Sol' }];
+        }
+        
+        const currentDegree = ((currentMetronomeNote - 1) % currentScaleIntervals.length) + 1;
+        const romanNumerals = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii', 'viii'];
+        const romanNumeral = romanNumerals[Math.min(currentDegree - 1, romanNumerals.length - 1)] || 'I';
+        
+        const planetIndex = Math.min(currentDegree - 1, currentPlanetaryKey.length - 1);
+        const currentPlanet = currentPlanetaryKey[planetIndex];
+        
+        const poolDescription = `${(currentScale[0] && currentScale[0].celestialBody) || 'Sol'} ${currentScalePattern || 'ionian'}`;
+        
+        const updates = {
+            timeDisplay: `10-Voice • ${currentKey || 'C'} ${currentScalePattern || 'ionian'} • ${Math.round(currentTempo)} BPM`,
+            barDisplay: `${barInCycle}/12`,
+            metronomeDisplay: `${romanNumeral}-${(currentPlanet && currentPlanet.name) || 'Unknown'}`,
+            planetaryKeyDisplay: poolDescription,
+            currentPlanetDisplay: currentPlanet ? 
+                `${(currentPlanet.name || 'Unknown').replace(/_/g, ' ')}-${(currentPlanet.form || 'Mystery').replace(/_/g, ' ')}` : 
+                'Evolving'
+        };
+        
+        // Enhanced emotional and voice status fields
+        const emotionalElement = document.getElementById('emotionalField');
+        const voicesElement = document.getElementById('voicesField');
+        const leftHandElement = document.getElementById('leftHandField');
+        const rightHandElement = document.getElementById('rightHandField');
+        const pedalElement = document.getElementById('pedalField');
+        
+        if (emotionalElement) {
+            if (enhancedState.emotionalSystemActive) {
+                const dominantEmotion = emotionalTides.dominantEmotion;
+                const dominantPercent = Math.floor(emotionalTides[dominantEmotion] * 100);
+                
+                const shortNames = {
+                    longing: 'Lon',
+                    ecstasy: 'Ecs', 
+                    melancholy: 'Mel',
+                    transcendence: 'Tra'
+                };
+                
+                emotionalElement.textContent = `${shortNames[dominantEmotion] || 'Emo'}:${dominantPercent}%`;
+                emotionalElement.classList.add('emotional-active-inline');
+            } else {
+                emotionalElement.textContent = 'Emo:Off';
+                emotionalElement.classList.remove('emotional-active-inline');
+            }
+        }
+        
+        if (voicesElement) {
+            const activeVoiceCount = enhancedState.activeVoices.size;
+            voicesElement.textContent = `V:${activeVoiceCount}/10`;
+            if (activeVoiceCount > 0) {
+                voicesElement.classList.add('voice-active-inline');
+            } else {
+                voicesElement.classList.remove('voice-active-inline');
+            }
+        }
+        
+        // Left hand voices (lower register)
+        if (leftHandElement) {
+            const leftVoices = ['bass', 'pedal', 'tenor', 'inner-harmony'];
+            const activeLeft = leftVoices.filter(v => enhancedState.activeVoices.has(v)).length;
+            leftHandElement.textContent = `L:${activeLeft}/4`;
+            if (activeLeft > 0) {
+                leftHandElement.classList.add('voice-active-inline');
+            } else {
+                leftHandElement.classList.remove('voice-active-inline');
+            }
+        }
+        
+        // Right hand voices (upper register)
+        if (rightHandElement) {
+            const rightVoices = ['melody', 'countermelody', 'soprano', 'alto', 'harmony'];
+            const activeRight = rightVoices.filter(v => enhancedState.activeVoices.has(v)).length;
+            rightHandElement.textContent = `R:${activeRight}/5`;
+            if (activeRight > 0) {
+                rightHandElement.classList.add('voice-active-inline');
+            } else {
+                rightHandElement.classList.remove('voice-active-inline');
+            }
+        }
+        
+        // Pedal activity
+        if (pedalElement) {
+            const pedalActive = enhancedState.activeVoices.has('pedal');
+            pedalElement.textContent = pedalActive ? 'P:On' : 'P:Off';
+            if (pedalActive) {
+                pedalElement.classList.add('voice-active-inline');
+            } else {
+                pedalElement.classList.remove('voice-active-inline');
+            }
+        }
+        
+        Object.entries(updates).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el && el.textContent !== value) {
+                el.textContent = value;
+            }
+        });
+    } catch (error) {
+        // Silent error handling
+    }
+}
+
+// ========================================================================================
+// 10-VOICE MASTER CLOCK WITH INTELLIGENT VOICE MANAGEMENT
+// ========================================================================================
+
+function musicalMasterClockTick() {
+    if (!isPlaying) return;
+    
+    try {
+        // Clean up expired notes
+        const now = Date.now();
+        enhancedState.activeNotes = enhancedState.activeNotes.filter(note => {
+            if (note.endTime <= now) {
+                returnNoteObject(note);
+                return false;
+            }
+            return true;
+        });
+        
+        // Update emotional momentum
+        if (enhancedState.emotionalSystemActive && tickCount % 2 === 0) {
+            Object.keys(emotionalTides.momentum).forEach(emotion => {
+                emotionalTides.momentum[emotion] *= 0.95;
+            });
+        }
+        
+        // Advance phrase position
+        if (enhancedState.currentPhrase && tickCount % 2 === 0) {
+            const context = enhancedState.currentPhrase.advance();
+            enhancedState.expressiveIntensity = enhancedState.currentPhrase.getExpressiveIntensity();
+        }
+        
+        // Clear voice tracking sets
+        enhancedState.voicesEntering.clear();
+        enhancedState.voicesExiting.clear();
+        enhancedState.currentVoiceDoubling.clear();
+        
+        // Track voices that were active last tick but aren't now (exiting)
+        const previouslyActive = new Set(enhancedState.activeVoices);
+        enhancedState.activeVoices.clear();
+        
+        // 10-Voice intelligent voice management
+        VOICE_DEFINITIONS.forEach((voiceDef, index) => {
+            const voiceName = voiceDef.name;
+            
+            // Calculate voice probability based on momentum and context
+            let voiceChance = voiceDef.probability + (enhancedState.voiceMomentum[voiceName] * 0.01);
+            
+            // Emotional influence on voice activity
+            if (enhancedState.emotionalSystemActive) {
+                const dominantEmotion = emotionalTides.dominantEmotion;
+                const intensity = emotionalTides.emotionalIntensity;
+                
+                // Different voices respond differently to emotions
+                switch (voiceName) {
+                    case 'melody':
+                    case 'countermelody':
+                        if (dominantEmotion === 'ecstasy') voiceChance += intensity * 0.3;
+                        if (dominantEmotion === 'longing') voiceChance += intensity * 0.2;
+                        break;
+                    case 'bass':
+                    case 'pedal':
+                        if (dominantEmotion === 'longing') voiceChance += intensity * 0.25;
+                        if (dominantEmotion === 'transcendence') voiceChance -= intensity * 0.1;
+                        break;
+                    case 'soprano':
+                    case 'alto':
+                        if (dominantEmotion === 'transcendence') voiceChance += intensity * 0.2;
+                        if (dominantEmotion === 'ecstasy') voiceChance += intensity * 0.15;
+                        break;
+                    case 'harmony':
+                    case 'inner-harmony':
+                        if (dominantEmotion === 'melancholy') voiceChance += intensity * 0.1;
+                        if (dominantEmotion === 'transcendence') voiceChance += intensity * 0.15;
+                        break;
+                }
+            }
+            
+            // Phrase context influence
+            if (enhancedState.currentPhrase) {
+                const context = enhancedState.currentPhrase.getCurrentContext();
+                if (context === 'climax') {
+                    voiceChance += 0.15;
+                } else if (context === 'resolution') {
+                    if (voiceName === 'bass' || voiceName === 'melody') {
+                        voiceChance += 0.2;
+                    }
+                }
+            }
+            
+            // Voice interplay: reduce chance if too many voices are active
+            const currentActiveCount = enhancedState.activeVoices.size;
+            if (currentActiveCount > 6) {
+                voiceChance *= 0.7; // Reduce probability for additional voices
+            } else if (currentActiveCount > 4) {
+                voiceChance *= 0.85;
+            }
+            
+            // Rhythmic timing: some voices prefer certain beats
+            if (voiceName === 'metronome' && tickCount % 2 === 0) {
+                voiceChance *= 2; // Metronome on strong beats
+            } else if (voiceName === 'bass' && tickCount % 4 === 0) {
+                voiceChance += 0.2; // Bass on strong beats
+            }
+            
+            // Roll for voice activation
+            if (Math.random() < voiceChance) {
+                const note = getEmotionallyIntelligentNote(voiceName, enhancedState.lastVoiceActivity[voiceName]);
+                const duration = getDurationForVoice(voiceName);
+                
+                playVoiceNote(voiceName, note, duration);
+                
+                enhancedState.activeVoices.add(voiceName);
+                enhancedState.lastVoiceActivity[voiceName] = note;
+                enhancedState.voiceMomentum[voiceName] = Math.max(-4, enhancedState.voiceMomentum[voiceName] - 1);
+            } else {
+                enhancedState.voiceMomentum[voiceName] = Math.min(4, enhancedState.voiceMomentum[voiceName] + 1);
+            }
+            
+            // Track voice exits
+            if (previouslyActive.has(voiceName) && !enhancedState.activeVoices.has(voiceName)) {
+                enhancedState.voicesExiting.add(voiceName);
+            }
+        });
+        
+        // Rhythmic structure
+        if (tickCount % 2 === 0) {
+            beatsInCurrentBar++;
+            if (beatsInCurrentBar >= currentTimeSignature[0]) {
+                beatsInCurrentBar = 0;
+                currentBarCount++;
+                
+                if (currentBarCount % 4 === 1) {
+                    currentMetronomeNote = Math.floor(Math.random() * currentScaleIntervals.length) + 1;
+                }
+                
+                updateMusicalSystem();
+            }
+        }
+        
+        // Display updates and continuous narrative flow
+        if (tickCount % 4 === 0) {
+            batchMusicalDisplayUpdate();
+            ensureNarrativeFlow(); // Safety check for narrative flow
+        }
+        
+        tickCount++;
+        
+    } catch (error) {
+        // Silent error handling
+    }
+}
+
+function getDurationForVoice(voiceName) {
+    const durations = {
+        metronome: 0.125,
+        melody: 1.0,
+        countermelody: 0.75,
+        soprano: 1.25,
+        alto: 1.0,
+        tenor: 0.75,
+        harmony: 1.5,
+        'inner-harmony': 1.25,
+        bass: 2.0,
+        pedal: 3.0
+    };
+    
+    return durations[voiceName] || 1.0;
+}
+
+// ========================================================================================
+// MAIN CONTROL FUNCTIONS WITH 10-VOICE SYSTEM
+// ========================================================================================
+
+window.startSpheresSynthesis = function startSpheresSynthesis() {
+    if (isPlaying) return;
+    
+    try {
+        if (!initAudio()) {
+            throw new Error('Failed to initialize audio system');
+        }
+        
+        initializeMusicalSystem();
+        
+        // Activate enhanced systems
+        enhancedState.emotionalSystemActive = Math.random() < 0.85;
+        enhancedState.desireDrivenActive = enhancedState.emotionalSystemActive;
+        enhancedState.classicalOrnamentsActive = Math.random() < 0.6;
+        enhancedState.tempoRubatoActive = Math.random() < 0.4;
+        enhancedState.advancedHarmonyActive = Math.random() < 0.7;
+        enhancedState.motivicDevelopmentActive = Math.random() < 0.3;
+        enhancedState.phraseStructureActive = true;
+        
+        isPlaying = true;
+        
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+        document.getElementById('startBtn').classList.add('spheres-synthesis');
+        
+        currentBarCount = 1;
+        beatsInCurrentBar = 0;
+        tickCount = 0;
+        barsSinceScaleChange = 0;
+        barsSincePoolChange = 0;
+        
+        enhancedState.activeNotes = [];
+        enhancedState.lastNote = null;
+        enhancedState.harmony = 0.5;
+        enhancedState.tension = 0.0;
+        enhancedState.currentPhrase = new MusicalPhrase(8);
+        enhancedState.activeMotifs = [];
+        enhancedState.pendingCadence = null;
+        enhancedState.activeVoices.clear();
+        enhancedState.voicesEntering.clear();
+        enhancedState.voicesExiting.clear();
+        enhancedState.currentVoiceDoubling.clear();
+        enhancedState.currentDissonanceLevel = 0.0;
+        
+        // Reset voice momentum
+        VOICE_DEFINITIONS.forEach(voice => {
+            enhancedState.voiceMomentum[voice.name] = 0;
+            enhancedState.lastVoiceActivity[voice.name] = 0;
+        });
+        
+        // Initialize emotional system
+        emotionalTides.longing = 0.0;
+        emotionalTides.ecstasy = 0.0;
+        emotionalTides.melancholy = 0.0;
+        emotionalTides.transcendence = 0.0;
+        emotionalTides.dominantEmotion = 'transcendence';
+        emotionalTides.emotionalIntensity = 0.0;
+        emotionalTides.lastEmotionalShift = 0;
+        emotionalCycleCounter = 0;
+        
+        Object.keys(emotionalTides.momentum).forEach(emotion => {
+            emotionalTides.momentum[emotion] = 0.0;
+        });
+        
+        resetNarrative();
+        
+        setupEnhancedOscilloscope();
+        batchMusicalDisplayUpdate();
+        
+        const beatsPerSecond = currentTempo / 60;
+        const eighthNoteInterval = Math.max(100, (1 / beatsPerSecond) / 2 * 1000);
+        
+        masterClock = setInterval(musicalMasterClockTick, eighthNoteInterval);
+        
+        return true;
+        
+    } catch (error) {
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        isPlaying = false;
+        return false;
+    }
+}
+
+window.stopSpheresSynthesis = function stopSpheresSynthesis() {
+    if (!isPlaying) return;
+    
+    try {
+        isPlaying = false;
+        
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('startBtn').classList.remove('spheres-synthesis');
+        
+        if (masterClock) {
+            clearInterval(masterClock);
+            masterClock = null;
+        }
+        
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+        
+        enhancedState.activeNotes.forEach(note => returnNoteObject(note));
+        enhancedState.activeNotes = [];
+        
+        // Reset all state
+        enhancedState.lastNote = null;
+        enhancedState.harmony = 0.5;
+        enhancedState.tension = 0.0;
+        enhancedState.classicalOrnamentsActive = false;
+        enhancedState.tempoRubatoActive = false;
+        enhancedState.advancedHarmonyActive = false;
+        enhancedState.motivicDevelopmentActive = false;
+        enhancedState.emotionalSystemActive = false;
+        enhancedState.desireDrivenActive = false;
+        enhancedState.currentPhrase = null;
+        enhancedState.activeMotifs = [];
+        enhancedState.pendingCadence = null;
+        enhancedState.activeVoices.clear();
+        enhancedState.voicesEntering.clear();
+        enhancedState.voicesExiting.clear();
+        enhancedState.currentVoiceDoubling.clear();
+        enhancedState.currentDissonanceLevel = 0.0;
+        
+        // Reset voice momentum
+        VOICE_DEFINITIONS.forEach(voice => {
+            enhancedState.voiceMomentum[voice.name] = 0;
+            enhancedState.lastVoiceActivity[voice.name] = 0;
+        });
+        
+        // Reset emotional tides
+        emotionalTides.longing = 0.0;
+        emotionalTides.ecstasy = 0.0;
+        emotionalTides.melancholy = 0.0;
+        emotionalTides.transcendence = 0.0;
+        emotionalTides.dominantEmotion = 'transcendence';
+        emotionalTides.emotionalIntensity = 0.0;
+        emotionalTides.lastEmotionalShift = 0;
+        emotionalCycleCounter = 0;
+        
+        Object.keys(emotionalTides.momentum).forEach(emotion => {
+            emotionalTides.momentum[emotion] = 0.0;
+        });
+        
+        // Clear visualization
+        if (layout && layout.ctx) {
+            const size = layout.getOscilloscopeSize();
+            layout.ctx.fillStyle = 'rgba(0,0,0,1)';
+            layout.ctx.fillRect(0, 0, size.width, size.height);
+        }
+        
+        // Clear staff notes
+        const staff = document.querySelector('.staff');
+        if (staff) {
+            const notes = staff.querySelectorAll('.note');
+            notes.forEach(note => note.remove());
+        }
+        
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+// ========================================================================================
+// INITIALIZATION
+// ========================================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        layout = new EnhancedLayout();
+        
+        document.getElementById('timeDisplay').textContent = '10-Voice Pianist Ready • Press ▶ for Dynamic Tempo Generation (9-136 BPM)';
+        document.getElementById('planetaryKeyDisplay').textContent = 'Cosmic Database';
+        document.getElementById('currentPlanetDisplay').textContent = 'Initializing';
+        document.getElementById('emotionalField').textContent = 'Emo:Off';
+        document.getElementById('voicesField').textContent = 'V:0/10';
+        document.getElementById('leftHandField').textContent = 'L:Off';
+        document.getElementById('rightHandField').textContent = 'R:Off';
+        document.getElementById('pedalField').textContent = 'P:Off';
+        
+        setTimeout(() => {
+            batchMusicalDisplayUpdate();
+        }, 100);
+        
+        return true;
+    } catch (error) {
+        return false;
+    }
+});
+
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && isPlaying) {
+        // Continue playing when tab is hidden
+    } else if (!document.hidden && isPlaying && audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+});
+
+</script>
+
+</body>  
+</html>
